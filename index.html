@@ -145,9 +145,9 @@ Every stage reads from and writes to the same four artifacts, so any stage can b
 
 **Hypothesis statement format:** "We believe [segment] will [behavior] because [reason]. We will know we are right when [metric] reaches [threshold] within [time]."
 
-**Storage convention, when tracked as files.** The playbook itself is one fixed file (for example `playbook/playbook.md`) that never changes for a specific case, alongside its own `playbook/presentation/` for materials that explain and sell the method itself, separate from any one run's content.
+**Storage convention, when tracked as files.** The playbook itself is one fixed file (for example `playbook/playbook.md`) that never changes for a specific case, alongside its own `playbook/presentation/` for materials that explain and sell the Playbook itself, separate from any one run's content.
 
-Each application of the method to a real case lives in its own folder under `runs/<company-or-case>-<year>/`. Within that folder:
+Each application of the Playbook to a real case lives in its own folder under `runs/<company-or-case>-<year>/`. Within that folder:
 
 - `scope.md` and `evidence-log.md` hold the run-wide assumptions and sourced evidence, written once and referenced by every candidate rather than copy-pasted into each.
 - `opportunities.md` holds every candidate opportunity surfaced at Stage 1, its scoring and its strategic fit result — this is where breadth is shown: several real options, not just the winner.
@@ -156,7 +156,7 @@ Each application of the method to a real case lives in its own folder under `run
 - Once a candidate is chosen to proceed past Stage 1, each later stage it goes through adds one more file to that candidate's subfolder, named after the stage: `stage2-problem-discovery.md`, `stage3-hypothesis-map.md`, `stage4-cheap-tests.md`, and so on. Each file holds that stage's outputs as specified in its section above (for Stage 2: segment definition, coded interviews, job statement; for Stage 3: concept one-pager, ranked register, test backlog; for Stage 4: filled test templates and results) and ends with that stage's own gate decision record — distinct from the run-level `gate-decision.md`, which only ever compares candidates at the Stage 1 exit.
 - The hypothesis register is not a separate file: it is threaded across a candidate's `stageN-*.md` files by hypothesis ID. Seed hypotheses are written once in `stage1-case-file.md`; later stages update the status of those same IDs by reference (supported, refuted, inconclusive) and add any new IDs they raise, rather than copying the whole register forward each time.
 
-This keeps the method reusable and unpolluted by any one run's content, keeps breadth (several candidates) visibly separate from depth (one candidate's full validation), and lets several runs of the same playbook exist side by side without collision. If a parked or reclassified candidate later earns its own validation track, it gets its own run folder, not a subfolder here — a full re-score is a new Stage 1, not a continuation of this one.
+This keeps the Playbook reusable and unpolluted by any one run's content, keeps breadth (several candidates) visibly separate from depth (one candidate's full validation), and lets several runs of the same playbook exist side by side without collision. If a parked or reclassified candidate later earns its own validation track, it gets its own run folder, not a subfolder here — a full re-score is a new Stage 1, not a continuation of this one.
 
 **Confidence scale**
 
@@ -1455,7 +1455,7 @@ const APPROACH = [
 
 const LIMITATIONS = [
   { title: 'No inside information', body: 'no internal data or company strategy brief, so every number that would normally come from those is a labeled guess.' },
-  { title: 'No real sign-off', body: 'the €500k bar and per-stage budgets are signed off by a stand-in approver for this exercise, not an actual Enefit stakeholder — the method still needs a real one.' },
+  { title: 'No real sign-off', body: 'the €500k bar and per-stage budgets are signed off by a stand-in approver for this exercise, not an actual Enefit stakeholder — the Playbook still needs a real one.' },
   { title: 'No real interviews yet', body: 'Stage 2 ran on public signals only, and Stage 3\'s hypothesis register is drafted, not tested — no real customers have been involved so far.' },
   { title: 'One person, one sitting', body: 'expect the numbers to move once real data replaces the assumptions.' },
 ];
@@ -1531,7 +1531,7 @@ function Reveal({ id, revealed, as: Tag = 'div', style, className, children }) {
 }
 
 const DOC_META = {
-  playbook: { kicker: 'The method', title: 'PM Playbook — full method' },
+  playbook: { kicker: 'The Playbook', title: 'PM Playbook — full method' },
   scope: { kicker: 'Enefit run · foundation', title: 'Scope, restrictions & preconditions' },
   evidence: { kicker: 'Enefit run · foundation', title: 'Evidence log — 22 public sources' },
   opportunities: { kicker: 'Enefit run · Stage 1', title: 'Opportunities — scored shortlist' },
@@ -1749,7 +1749,7 @@ function App() {
         <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
           <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 600, fontSize: '14px' }}>How I decide what to build next</div>
           <div style={{ display: 'flex', gap: '26px', fontSize: '13.5px', fontWeight: 600, flexWrap: 'wrap' }}>
-            <a href="#playbook" onClick={(e) => scrollToId(e, 'playbook')} className="nav-link" style={{ textDecoration: 'none', color: 'oklch(30% 0.02 260)', cursor: 'pointer' }}>The method</a>
+            <a href="#playbook" onClick={(e) => scrollToId(e, 'playbook')} className="nav-link" style={{ textDecoration: 'none', color: 'oklch(30% 0.02 260)', cursor: 'pointer' }}>The Playbook</a>
             <a href="#applied" onClick={(e) => scrollToId(e, 'applied')} className="nav-link" style={{ textDecoration: 'none', color: 'oklch(30% 0.02 260)', cursor: 'pointer' }}>Applied to Enefit</a>
           </div>
         </div>
@@ -1763,7 +1763,7 @@ function App() {
         <div style={{ maxWidth: '820px', margin: '0 auto', padding: 'var(--hero-pad)', position: 'relative' }}>
           <div style={{ opacity: heroIn ? 1 : 0, transform: heroIn ? 'translateY(0)' : 'translateY(16px)', transition: 'opacity 0.8s cubic-bezier(.16,1,.3,1),transform 0.8s cubic-bezier(.16,1,.3,1)' }}>
             <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 'var(--h1-size)', lineHeight: 1.15, margin: '0 0 20px', letterSpacing: '-0.01em' }}>Kill bad ideas cheap. Let the good ones prove themselves.</h1>
-            <p style={{ fontSize: '19px', lineHeight: 1.65, color: 'oklch(80% 0.01 260)', margin: '0 0 34px', maxWidth: '640px' }}>A simple method for deciding whether a new product idea is worth building — then that method run for real, on a live case: what should Enefit, a Baltic energy company, build next?</p>
+            <p style={{ fontSize: '19px', lineHeight: 1.65, color: 'oklch(80% 0.01 260)', margin: '0 0 34px', maxWidth: '640px' }}>A simple Playbook for deciding whether a new product idea is worth building — then that Playbook run for real, on a live case: what should Enefit, a Baltic energy company, build next?</p>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <a href="#playbook" onClick={(e) => scrollToId(e, 'playbook')} className="cta-fill" style={{ background: 'oklch(72% 0.12 195)', color: 'oklch(13% 0.02 260)', padding: '13px 22px', borderRadius: '100px', fontWeight: 600, fontSize: '14px', textDecoration: 'none', display: 'inline-block', cursor: 'pointer' }}>See how it works</a>
               <a href="#applied" onClick={(e) => scrollToId(e, 'applied')} className="cta-outline" style={{ background: 'oklch(28% 0.02 260)', color: '#fff', padding: '13px 22px', borderRadius: '100px', fontWeight: 600, fontSize: '14px', textDecoration: 'none', display: 'inline-block', cursor: 'pointer' }}>Jump to the real case</a>
@@ -1865,7 +1865,7 @@ function App() {
       <div id="exercise" style={{ background: 'linear-gradient(180deg,oklch(16% 0.02 260),oklch(19% 0.02 260))', color: '#fff' }}>
         <div style={{ maxWidth: '820px', margin: '0 auto', padding: 'var(--exercise-pad)' }}>
           <Reveal id="exercise-head" revealed={revealed}>
-            <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 'var(--h2-size-sm)', lineHeight: 1.2, margin: '0 0 40px', letterSpacing: '-0.01em' }}>I didn't just describe the method — I ran it</h2>
+            <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 'var(--h2-size-sm)', lineHeight: 1.2, margin: '0 0 40px', letterSpacing: '-0.01em' }}>I didn't just describe the Playbook — I ran it</h2>
           </Reveal>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '18px', marginBottom: '44px' }}>
             {APPROACH.map((text, i) => (
@@ -1875,7 +1875,7 @@ function App() {
             ))}
           </div>
           <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 600, fontSize: '18px', marginBottom: '6px' }}>Where this exercise stops short</div>
-          <p style={{ fontSize: '13.5px', color: 'oklch(70% 0.01 260)', margin: '0 0 20px' }}>Said upfront, the same way the method itself insists on naming risks before running a test.</p>
+          <p style={{ fontSize: '13.5px', color: 'oklch(70% 0.01 260)', margin: '0 0 20px' }}>Said upfront, the same way the Playbook itself insists on naming risks before running a test.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {LIMITATIONS.map((l, i) => (
               <Reveal key={i} id={'limit-' + i} revealed={revealed} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', background: 'oklch(24% 0.02 260)', borderRadius: '10px', padding: '14px 18px' }}>
@@ -1891,7 +1891,7 @@ function App() {
       <div id="applied" style={{ maxWidth: '1080px', margin: '0 auto', padding: 'var(--section-pad-b)' }}>
         <Reveal id="applied-head" revealed={revealed} style={{ textAlign: 'center', maxWidth: '680px', margin: '0 auto 48px' }}>
           <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 'var(--h2-size)', lineHeight: 1.2, margin: '0 0 14px', letterSpacing: '-0.01em' }}>Enefit, a Baltic energy company — what should it build next?</h2>
-          <p style={{ fontSize: '16px', lineHeight: 1.6, color: 'oklch(42% 0.02 260)', margin: 0 }}>The method, run for real on a live case — public information only, no inside access. Where the run stands today: Stage 1 complete, Stage 2 held (public-signal pass), Stage 3 register drafted.</p>
+          <p style={{ fontSize: '16px', lineHeight: 1.6, color: 'oklch(42% 0.02 260)', margin: 0 }}>The Playbook, run for real on a live case — public information only, no inside access. Where the run stands today: Stage 1 complete, Stage 2 held (public-signal pass), Stage 3 register drafted.</p>
         </Reveal>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginBottom: '48px' }}>
@@ -2099,7 +2099,7 @@ function App() {
         <Reveal id="stages-5-8-close" revealed={revealed} style={{ marginTop: '28px', paddingTop: '24px', borderTop: '1px solid oklch(90% 0.006 255)' }}>
           <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 600, fontSize: '16px', marginBottom: '6px' }}>What happens next</div>
           <p style={{ fontSize: '14px', lineHeight: 1.6, color: 'oklch(42% 0.02 260)', margin: '0 0 16px', maxWidth: '640px' }}>Candidate 1 moves into Stage 2 discovery with the budget above; Candidate 3 stays on hold pending one partner conversation. Neither reaches Stage 5 without clearing the cheap tests queued above first — that's the gate doing its job, not a stall.</p>
-          <a href="#playbook" onClick={(e) => scrollToId(e, 'playbook')} style={{ textDecoration: 'none', color: 'oklch(45% 0.13 195)', fontWeight: 600, fontSize: '13.5px', cursor: 'pointer' }}>↑ Back to how the method works</a>
+          <a href="#playbook" onClick={(e) => scrollToId(e, 'playbook')} style={{ textDecoration: 'none', color: 'oklch(45% 0.13 195)', fontWeight: 600, fontSize: '13.5px', cursor: 'pointer' }}>↑ Back to how the Playbook works</a>
         </Reveal>
       </div>
 
