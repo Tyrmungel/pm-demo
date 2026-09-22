@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="et">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%2300973A'/%3E%3Cpath d='M10 9h13v3.4H13.4v3.6H21v3.4h-7.6v3.6H23V26H10z' fill='%23fff'/%3E%3C/svg%3E" />
+<title>Hinnakaitse hübriidpakett: Enefit (kontseptsioon, hinnavariant A, H1.8)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../brand-system/tokens.css" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--eds-heading-h1-font-family-laptop, "Inter"), sans-serif;
+    color: var(--eds-color-static-text-on-basic-headline, #16181d);
+    background: #fff;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap {
+    max-width: 75rem;
+    margin: 0 auto;
+    padding-left: var(--eds-grid-margin-laptop, 1.5rem);
+    padding-right: var(--eds-grid-margin-laptop, 1.5rem);
+  }
+  header { border-bottom: 1px solid rgba(0,0,0,.06); }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; padding-block: var(--eds-spacing-16, 1rem); }
+  .logo img { display: block; height: 2rem; width: auto; }
+  .variant-tag {
+    font-size: .75rem; font-weight: 700; letter-spacing: .04rem;
+    color: var(--eds-color-static-text-on-basic-supportive, #5b6270);
+    text-transform: uppercase;
+  }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    border: none; cursor: pointer; font-weight: 600; font-size: 1rem; line-height: 1.25rem;
+    padding: .875rem 1.5rem; border-radius: var(--eds-radius-full, 62.438rem);
+    transition: background-color .15s ease;
+  }
+  .btn-primary { background: var(--eds-color-action-bg-button-primary-default, rgb(0,136,52)); color: #fff; }
+  .btn-primary:hover { background: var(--eds-color-action-bg-button-primary-hover, rgb(0,126,48)); }
+
+  .notice-banner {
+    background: var(--eds-color-static-bg-info-main, #edf4fe);
+    border-bottom: 1px solid var(--eds-color-static-stroke-info-main, #b8d4ff);
+  }
+  .notice-banner .wrap { display: flex; align-items: flex-start; gap: .625rem; padding-block: var(--eds-spacing-12, .75rem); font-size: .875rem; line-height: 1.35rem; color: var(--eds-color-static-text-info-body, #114491); }
+  .notice-banner strong { color: var(--eds-color-static-text-info-headline, #114491); }
+
+  .hero { background: var(--eds-color-static-bg-accent-main, #00973A); color: #fff; }
+  .hero-inner { padding-block: var(--eds-spacing-64, 4rem); text-align: center; }
+  .eyebrow {
+    display: inline-block; font-size: 1rem; font-weight: 700; letter-spacing: .01rem; text-transform: uppercase;
+    background: rgba(255,255,255,.16); padding: .375rem .875rem; border-radius: var(--eds-radius-full, 62.438rem);
+    margin-bottom: var(--eds-spacing-16, 1rem);
+  }
+  .hero h1 {
+    font-size: var(--eds-heading-h1-font-size-laptop, 3rem); font-weight: 600; letter-spacing: -.09rem;
+    line-height: var(--eds-heading-h1-line-height-laptop, 3.5rem); margin: 0 0 var(--eds-spacing-16, 1rem);
+  }
+  .hero p.lead {
+    font-size: var(--eds-heading-leadtext-font-size-laptop, 1.5rem); font-weight: 300;
+    line-height: var(--eds-heading-leadtext-line-height-laptop, 2rem); color: rgba(255,255,255,.92);
+    margin: 0 auto; max-width: 36rem;
+  }
+
+  .section { padding-block: var(--eds-spacing-80, 5rem); }
+  .pricing-wrap { background: #f7f8f6; }
+  .price-card {
+    max-width: 26rem; margin: 0 auto; background: #fff;
+    border-radius: var(--eds-radius-modal, 1rem);
+    box-shadow: var(--eds-shadow-300-accent, 0px 0px 4px rgba(0,0,0,.05), 0px 8px 24px rgba(0,136,52,.3));
+    border: 2px solid var(--eds-color-static-bg-accent-main, #00973A);
+    padding: var(--eds-spacing-40, 2.5rem); text-align: center; position: relative;
+  }
+  .price-card .badge {
+    position: absolute; top: -.75rem; left: 50%; transform: translateX(-50%);
+    background: var(--eds-color-static-bg-accent-main, #00973A); color: #fff;
+    font-size: .75rem; font-weight: 700; letter-spacing: .04rem;
+    padding: .25rem .875rem; border-radius: var(--eds-radius-full, 62.438rem);
+  }
+  .price-card h3 { font-size: 1.375rem; font-weight: 600; margin: 0; }
+  .price-card .amount { font-size: 3rem; font-weight: 600; letter-spacing: -.06rem; margin: var(--eds-spacing-16, 1rem) 0 0; }
+  .price-card .amount span { font-size: 1rem; font-weight: 400; color: var(--eds-color-static-text-on-basic-supportive, #5b6270); }
+  .price-card .permonth { font-size: .875rem; color: var(--eds-color-static-text-on-basic-supportive, #5b6270); margin-top: .25rem; }
+  .price-card ul { list-style: none; padding: 0; margin: var(--eds-spacing-24, 1.5rem) 0; text-align: left; }
+  .price-card li { display: flex; gap: .5rem; padding-block: .5rem; font-size: .9375rem; }
+  .price-card li::before { content: "✓"; color: var(--eds-color-static-bg-accent-main, #00973A); font-weight: 700; }
+  .price-card .btn { width: 100%; margin-top: var(--eds-spacing-8, .5rem); }
+  .fineprint { text-align: center; font-size: .8125rem; color: var(--eds-color-static-text-on-basic-supportive, #5b6270); margin-top: var(--eds-spacing-16, 1rem); max-width: 30rem; margin-inline: auto; }
+
+  .form-row { display: flex; gap: .625rem; margin-top: var(--eds-spacing-16, 1rem); }
+  .form-row input[type="email"] {
+    flex: 1;
+    padding: .875rem 1rem;
+    border-radius: var(--eds-radius-main, .5rem);
+    border: 1px solid var(--eds-color-action-stroke-form-default, #dfe0e3);
+    font-size: 1rem;
+    font-family: inherit;
+    text-align: left;
+  }
+  .form-row input[type="email"]:focus { outline: 2px solid var(--eds-color-static-bg-accent-main, #00973A); outline-offset: 1px; }
+  .consent { display: flex; gap: .5rem; align-items: flex-start; text-align: left; font-size: .8125rem; color: var(--eds-color-static-text-on-basic-supportive, #5b6270); margin-top: var(--eds-spacing-12, .75rem); }
+  .consent input { margin-top: .2rem; }
+
+  .thankyou { display: none; text-align: center; }
+  .thankyou .check {
+    width: 3rem; height: 3rem; margin: 0 auto var(--eds-spacing-12, .75rem);
+    border-radius: 50%; background: var(--eds-color-static-bg-success-main, #f0fbe7);
+    color: var(--eds-color-static-icon-success-main, #417815);
+    display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+  }
+  .price-card.submitted .price-state { display: none; }
+  .price-card.submitted .thankyou { display: block; }
+
+  footer { border-top: 1px solid rgba(0,0,0,.06); padding-block: var(--eds-spacing-40, 2.5rem); text-align: center; font-size: .8125rem; color: var(--eds-color-static-text-on-basic-supportive, #5b6270); }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="wrap header-inner">
+      <a class="logo" href="#" aria-label="Enefit">
+        <img src="../brand-system/logo.svg" alt="Enefit" />
+      </a>
+      <span class="variant-tag">H1.8 · Hinnavariant A</span>
+    </div>
+  </header>
+
+  <div class="notice-banner">
+    <div class="wrap">
+      <span>ℹ️</span>
+      <div><strong>Kontseptsiooni test (H1.8), hinnavariant A.</strong> Pakett ei ole veel müügil. See leht ei küsi makset, vaid mõõdab, kui palju külastajaid liitub ootenimekirjaga sellel hinnal.</div>
+    </div>
+  </div>
+
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <span class="eyebrow">Tuleb varsti</span>
+      <h1>Börsihinna eelised, ilma piiramatu riskita.</h1>
+      <p class="lead">Hinnakaitse hübriidpakett järgib börsihinda täpselt nagu tänagi. Kui hind hüppab lakke, astub sisse hinnalagi ja arve ei saa üle lae minna.</p>
+    </div>
+  </section>
+
+  <section class="section pricing-wrap" id="pricing">
+    <div class="wrap">
+      <div class="price-card" id="priceCard">
+        <div class="price-state">
+          <span class="badge">Varajane hind</span>
+          <h3>Hinnakaitse hübriidpakett</h3>
+          <div class="amount">20&nbsp;€<span>&nbsp;/ aastas</span></div>
+          <div class="permonth">~1.67 € kuus, lisatasuna praegusele börsipaketile</div>
+          <ul>
+            <li>Sinu börsihind ei muutu, kui see on odav</li>
+            <li>Hinnalagi kaitseb sind hinnatippude eest</li>
+            <li>Ei pikaajalist lepingut, tühista igal ajal</li>
+          </ul>
+          <form id="waitlistForm">
+            <div class="form-row">
+              <input type="email" required placeholder="sinu@email.ee" aria-label="E-posti aadress" />
+              <button type="submit" class="btn btn-primary">Liitu ootenimekirjaga</button>
+            </div>
+            <label class="consent">
+              <input type="checkbox" required />
+              <span>Nõustun, et Enefit võib mu e-posti kasutada, et teavitada mind selle konkreetse pakendi valmimisest. Ei kasutata muul eesmärgil.</span>
+            </label>
+          </form>
+        </div>
+        <div class="thankyou">
+          <div class="check">✓</div>
+          <h3>Aitäh!</h3>
+          <p class="fineprint" style="margin-top:0;">Anname teada, kui pakett valmib. Sinult ei ole midagi ostetud ja makset ei küsitud.</p>
+        </div>
+      </div>
+      <!-- H1.8 on kolmest testitavast hinnavariandist (vt B: 40 €, C: 60 €), mõõdab hinnatundlikkust enne pakendi lansseerimist. Sisemine märkus, ei kuvata külastajale. -->
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      Sisemine kontseptsiooni prototüüp · Enefit B2C 2026 run · H1.8 hinnavariant test (Stage 4, Candidate 1) · Toode ei ole veel saadaval, makset ei küsitud · Vormi esitamine ei saadeta kuhugi, see on disaini ülevaatuse jaoks · Brand tokens: <code>../brand-system/tokens.css</code> · Mitte avalik Enefit toode.
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('waitlistForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      document.getElementById('priceCard').classList.add('submitted');
+    });
+  </script>
+
+</body>
+</html>
