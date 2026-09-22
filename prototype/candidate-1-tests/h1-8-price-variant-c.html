@@ -91,8 +91,9 @@
   .price-card .btn { width: 100%; margin-top: var(--eds-spacing-8, .5rem); }
   .fineprint { text-align: center; font-size: .8125rem; color: var(--eds-color-static-text-on-basic-supportive, #5b6270); margin-top: var(--eds-spacing-16, 1rem); max-width: 30rem; margin-inline: auto; }
 
-  .form-row { display: flex; gap: .625rem; margin-top: var(--eds-spacing-16, 1rem); }
+  .form-row { display: flex; flex-wrap: wrap; gap: .625rem; margin-top: var(--eds-spacing-16, 1rem); }
   .form-row input[type="email"] {
+    min-width: 0;
     flex: 1;
     padding: .875rem 1rem;
     border-radius: var(--eds-radius-main, .5rem);
