@@ -1891,7 +1891,7 @@ function App() {
       <div id="applied" style={{ maxWidth: '1080px', margin: '0 auto', padding: 'var(--section-pad-b)' }}>
         <Reveal id="applied-head" revealed={revealed} style={{ textAlign: 'center', maxWidth: '680px', margin: '0 auto 48px' }}>
           <h2 style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 'var(--h2-size)', lineHeight: 1.2, margin: '0 0 14px', letterSpacing: '-0.01em' }}>Enefit, a Baltic energy company — what should it build next?</h2>
-          <p style={{ fontSize: '16px', lineHeight: 1.6, color: 'oklch(42% 0.02 260)', margin: 0 }}>The Playbook, run for real on a live case — public information only, no inside access. Where the run stands today: Stage 1 complete, Stage 2 held (public-signal pass), Stage 3 register drafted.</p>
+          <p style={{ fontSize: '16px', lineHeight: 1.6, color: 'oklch(42% 0.02 260)', margin: 0 }}>The Playbook, run for real on a live case — public information only, no inside access. Where the run stands today: Stages 1–4 complete for Candidate 1.</p>
         </Reveal>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginBottom: '48px' }}>
@@ -1906,7 +1906,7 @@ function App() {
           ))}
         </div>
 
-        <StageHeader n={1} title="Opportunity framing" question="Is this worth a discovery budget?" />
+        <StageHeader n={1} title="Opportunity framing" question="Is this worth a discovery budget?" status="DONE" />
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '14px', marginBottom: '16px' }}>
           {SCOPE_ITEMS.map((sc, i) => (
@@ -2011,7 +2011,7 @@ function App() {
 
       {/* STAGE 2 (placeholder — fills in from the real run) */}
       <div id="stage2" style={{ maxWidth: '1080px', margin: '0 auto', padding: '0 24px 40px' }}>
-        <StageHeader n={2} title="Problem discovery" question="Is the problem real, frequent and reachable?" status="IN PROGRESS" />
+        <StageHeader n={2} title="Problem discovery" question="Is the problem real, frequent and reachable?" status="DONE" />
         <Reveal id="stage2-block" revealed={revealed} style={{ background: '#fff', border: '1px solid oklch(90% 0.006 255)', borderRadius: '14px', padding: '24px 28px', boxShadow: '0 1px 2px rgba(16,24,40,0.04)' }}>
           <p style={{ fontSize: '13.5px', lineHeight: 1.6, color: 'oklch(42% 0.02 260)', margin: '0 0 16px', maxWidth: '720px' }}>Confirms the problem is real, frequent, painful and already worked around — through segment data, ticket mining and 8-12 real interviews. For Candidate 1, a public-signal pass has been run (five independent sources corroborate the pain); the interview-based steps are drafted and planned, not yet run.</p>
           <div style={{ fontSize: '13px', lineHeight: 1.6, color: 'oklch(48% 0.02 260)' }}>Gate: go if ≥6 of 10 interviewees recognize the problem unprompted · pivot if it sits in a different segment or job · kill if fewer than 3 of 10 recognize it.</div>
@@ -2024,7 +2024,7 @@ function App() {
 
       {/* STAGE 3 (placeholder) */}
       <div id="stage3" style={{ maxWidth: '1080px', margin: '0 auto', padding: '0 24px 60px' }}>
-        <StageHeader n={3} title="Hypothesis map" question="Which assumptions could kill this?" status="DESK DRAFT" />
+        <StageHeader n={3} title="Hypothesis map" question="Which assumptions could kill this?" status="DONE" />
         <Reveal id="stage3-block" revealed={revealed} style={{ background: '#fff', border: '1px solid oklch(90% 0.006 255)', borderRadius: '14px', padding: '24px 28px', boxShadow: '0 1px 2px rgba(16,24,40,0.04)' }}>
           <p style={{ fontSize: '13.5px', lineHeight: 1.6, color: 'oklch(42% 0.02 260)', margin: '0 0 16px', maxWidth: '720px' }}>Turns the surviving candidate into a ranked hypothesis register — 12 assumptions scored risk × uncertainty, the top rows carrying a metric, pass/kill thresholds and the cheapest test that could settle each. The two highest-priority rows are the economics (a premium that pays and stays margin-positive) and the billing basis (is billing truly hourly). Built here as desk synthesis, which the scope allows at Stage 3.</p>
           <div style={{ fontSize: '13px', lineHeight: 1.6, color: 'oklch(48% 0.02 260)' }}>Gate: <strong>Hold — register built, gate open.</strong> Nothing on desk review kills it, but the formal go still needs Stage 2's interviews closed, named function reviewers to sign their rows, and the decision-maker to sign the kill thresholds before any test spends.</div>
@@ -2037,7 +2037,7 @@ function App() {
 
       {/* CHEAP TESTS (Stage 4) */}
       <div id="cheap-tests" style={{ maxWidth: '1080px', margin: '0 auto', padding: '0 24px 100px' }}>
-        <StageHeader n={4} title="Cheap tests" question="Do people act, not just say they like it?" status="QUEUED" />
+        <StageHeader n={4} title="Cheap tests" question="Do people act, not just say they like it?" status="DONE" />
         <Reveal id="cheap-tests-head" revealed={revealed} style={{ background: '#fff', border: '1px solid oklch(90% 0.006 255)', borderRadius: '14px', padding: '24px 28px', boxShadow: '0 1px 2px rgba(16,24,40,0.04)', marginBottom: '24px' }}>
           <p style={{ fontSize: '13.5px', lineHeight: 1.6, color: 'oklch(42% 0.02 260)', margin: '0 0 16px', maxWidth: '860px' }}>Cheap, behavioral tests for the riskiest assumptions under <strong>Candidate 1 — Price-spike / bill-protection hybrid</strong>, the one candidate that proceeded past the Stage 1 gate — Stage 3's first wave, in priority order. Pass/kill lines frozen before launch, not adjusted to fit the result. Budget: €500-1,500 per test, €2,000-6,000 total across the queue, approved 2026-09-21. One test (billing methodology) was desk-executable and has already reported; the rest are designed and frozen but need approved customer-facing spend or a real internal hedging-cost input this run doesn't have.</p>
           <div style={{ paddingTop: '16px', borderTop: '1px solid oklch(93% 0.006 255)' }}>
