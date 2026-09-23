@@ -101,7 +101,7 @@
 
 ## Purpose and stage map
 
-This playbook takes a new B2C package from raw opportunity to a launch, scale or kill decision in eight stages, and every stage ends with a written gate decision. A person or an AI agent can run any stage from its inputs to its outputs. Stages 1-5 are specified in full; stages 6-8 are lighter.
+This playbook takes a new product or service offering from raw opportunity to a launch, scale or kill decision in eight stages, and every stage ends with a written gate decision. A person or an AI agent can run any stage from its inputs to its outputs. Stages 1-5 are specified in full; stages 6-8 are lighter.
 
 | Stage | Question the gate answers | Wall-clock duration | What that time is actually waiting on | Evidence required to pass |
 | --- | --- | --- | --- | --- |
@@ -196,7 +196,7 @@ This keeps the Playbook reusable and unpolluted by any one run's content, keeps 
 4. Run the strategic fit test on each of the three (table below). Park any candidate that fails a question, and log any unclear answer as a hypothesis.
 5. Size the prize for each surviving candidate: addressable customers × realistic adoption × value per customer per year. Produce conservative, base and optimistic cases.
 6. Add indirect value separately from fees: churn reduction, margin per customer, acquisition cost saved.
-7. Check cannibalization: which existing packages lose revenue if this succeeds, and by how much.
+7. Check cannibalization: which existing offerings lose revenue if this succeeds, and by how much.
 8. Log every input to the sizing as a hypothesis in the register, with a source or an "assumption" label.
 9. Write a case file for **every surviving candidate** (one per candidate, in its own subfolder — see Storage convention below), not just the top scorer. Then compare the sized candidates side by side in a single run-level gate decision that proposes which candidate(s) proceed.
 
@@ -212,9 +212,9 @@ Score each question pass, unclear or fail. A fail parks the candidate; an unclea
 
 **Multi-product and bundling lens.** A single-company view of "right to win" undercounts what a multi-line business already has. Before scoring right to win, check two things:
 
-- **Cross-sell across the company's own product lines.** List every other product or service the company already sells to the same household (energy, connectivity, mobility, insurance, financial products, and so on). A new package that plugs into two or three of these has a stronger right to win than one built in isolation, because it can share the billing relationship, the data, and the acquisition cost. Score this explicitly as part of "right to win," not as an afterthought.
-- **External bundling and partner loyalty.** Separately from owned products, scan for signs that companies in adjacent sectors are already bundling with each other, for example a telecom operator's loyalty programme offering discounted rides from a mobility app, or a bank card offering partner cashback at named retailers. This is evidence that customers respond to cross-sector bundles, and it opens a build-vs-partner choice: the company can build the whole package itself, or reach the same value by partnering with a company that already owns a piece of it. Log any such signal as evidence, and treat "build, partner, or both" as a hypothesis for Stage 3, not a decision made at Stage 1.
-- Adjacent-market footprint, added on review. If the company operates the same or a similar business in neighboring countries, treat those markets as a source of evidence, not just structure. Two uses: (1) analogous-market evidence — a package, price point, or feature already live in a sibling market can proxy for demand or feasibility at home before any local customer data exists, though it should be labeled as a weaker, cross-market proxy in the evidence log, not as home-market evidence; (2) competitive-urgency signal — watch for a competitor (not just the company's own sibling entity) already building toward the same concept across those neighboring markets, since that raises the cost of moving slowly and can shift a gate from a comfortable Hold toward a time-boxed one.
+- **Cross-sell across the company's own product lines.** List every other product or service the company already sells to the same household (energy, connectivity, mobility, insurance, financial products, and so on). A new offering that plugs into two or three of these has a stronger right to win than one built in isolation, because it can share the billing relationship, the data, and the acquisition cost. Score this explicitly as part of "right to win," not as an afterthought.
+- **External bundling and partner loyalty.** Separately from owned products, scan for signs that companies in adjacent sectors are already bundling with each other, for example a telecom operator's loyalty programme offering discounted rides from a mobility app, or a bank card offering partner cashback at named retailers. This is evidence that customers respond to cross-sector bundles, and it opens a build-vs-partner choice: the company can build the whole offering itself, or reach the same value by partnering with a company that already owns a piece of it. Log any such signal as evidence, and treat "build, partner, or both" as a hypothesis for Stage 3, not a decision made at Stage 1.
+- Adjacent-market footprint, added on review. If the company operates the same or a similar business in neighboring countries, treat those markets as a source of evidence, not just structure. Two uses: (1) analogous-market evidence — an offering, price point, or feature already live in a sibling market can proxy for demand or feasibility at home before any local customer data exists, though it should be labeled as a weaker, cross-market proxy in the evidence log, not as home-market evidence; (2) competitive-urgency signal — watch for a competitor (not just the company's own sibling entity) already building toward the same concept across those neighboring markets, since that raises the cost of moving slowly and can shift a gate from a comfortable Hold toward a time-boxed one.
 
 **Outputs:** ranked candidate list, one case file per surviving candidate (sized prize as a range with named assumptions, cannibalization check, seed hypotheses), and a single run-level gate decision record that compares them.
 
@@ -382,14 +382,14 @@ Set these thresholds before interviews start. Example values: pass if at least 6
 
 ## Stage 5: Pilot
 
-**Goal:** show that the package works with real customers on real contracts, in economics and in operations, before any full launch.
+**Goal:** show that the offering works with real customers on real contracts, in economics and in operations, before any full launch.
 
 **Inputs:** Stage 4 evidence and updated economics model, approved price range, a minimal product specification, draft customer terms, and operational readiness for a small cohort.
 
 **Agent steps**
 
 1. Define the pilot scope: only the features the supported hypotheses require, one price, terms with an easy exit, and a duration long enough to cover a full billing cycle and any seasonal effect that matters.
-2. Size the cohort at roughly 100-500 customers. Where possible, keep a matched control group of similar customers without the package.
+2. Size the cohort at roughly 100-500 customers. Where possible, keep a matched control group of similar customers without the offering.
 3. Write the measurement plan: for each metric, the question it answers and a threshold taken from the economics model (retention, conversion, price realized, support contacts per customer, cost to serve, margin, cannibalization, satisfaction).
 4. Set guardrails with pause triggers: complaint rate, billing error rate, support load, any customer harm.
 5. Prepare readiness items with their owners: customer terms and consumer-protection review, billing, support script, IT, data handling. Send each for sign-off.
@@ -424,7 +424,7 @@ These stages follow the same pattern (inputs, agent steps, gate, human checkpoin
 
 **Stage 6: Launch readiness**
 
-- Confirm final pricing and positioning from pilot data, including the core message and who the package is not for.
+- Confirm final pricing and positioning from pilot data, including the core message and who the offering is not for.
 - Run a readiness checklist with a named owner and sign-off per row: legal and consumer-protection terms, billing and systems, support training and scripts, sales training, marketing assets, data protection, reporting, and the cannibalization plan.
 - Set the rollout plan, guardrail metrics and pause triggers.
 - **Gate:** every checklist row signed, or an accepted risk recorded with an owner.
@@ -441,7 +441,7 @@ These stages follow the same pattern (inputs, agent steps, gate, human checkpoin
 | --- | --- | --- |
 | 30 days | Are early behavior and support load as expected? | Continue, fix, or pause |
 | 90 days | Do retention, price realized and margin match the pilot? | Scale, fix, or narrow the segment |
-| 180 days | Does the package beat its original hypotheses and the prize estimate? | Scale, keep as is, or sunset |
+| 180 days | Does the offering beat its original hypotheses and the prize estimate? | Scale, keep as is, or sunset |
 
 - Every review compares actuals with the hypothesis register, updates the register statuses, and records what the team would do differently.
 - A sunset plan (customer notice, migration path, contract exit) is written before launch, not after a failure.
@@ -450,7 +450,7 @@ These stages follow the same pattern (inputs, agent steps, gate, human checkpoin
 
 ## Adapting for new-to-company businesses
 
-For a business Enefit does not run today, keep the same eight stages and gates, but change the evidence used and shrink each funding step, because there is no customer base or usage data to lean on.
+For a business the company doesn't already run, keep the same eight stages and gates, but change the evidence used and shrink each funding step, because there is no customer base or usage data to lean on.
 
 | Stage | What changes | Do this instead |
 | --- | --- | --- |
@@ -464,9 +464,24 @@ For a business Enefit does not run today, keep the same eight stages and gates, 
 
 **Evidence rule:** accept medium-confidence evidence to pass the early gates, but require high-confidence behavioral evidence before any pilot spend.
 
+## Omnichannel lens
+
+Most segments already reach the company, and expect to be reached back, through more than one channel — web, mobile app, call centre, physical branches, and others depending on the case. Channel is not a separate stage; it is a check applied at the relevant point in the existing eight, the same way the multi-product and bundling lens applies at Stage 1 and the new-to-company adaptation applies across the early stages.
+
+| Stage | What channel adds | Do this instead |
+| --- | --- | --- |
+| 1. Opportunity framing | Signal sources skew toward whichever channel already tracks well (usually app/web analytics); call-centre and branch signal quality is uneven and easy to under-collect | When gathering frontline input, pull call volumes and topics by channel and branch foot traffic and staff feedback explicitly, not just a general monthly session; note in the case file which channel(s) already carry volume for this problem |
+| 2. Problem discovery | A segment's channel behavior is part of its definition, not a footnote | Ask directly in interviews how the customer currently handles this (calls, visits a branch, uses the app, goes online); code the answer as a segment attribute alongside frequency and severity |
+| 3. Hypothesis map | The customer journey (aware → interested → signs up → uses → pays → stays) can run through a different channel at each step; a hypothesis that silently assumes the wrong one is a hidden risk | When walking the journey, name the channel each step runs through; flag any hypothesis that assumes a channel the segment doesn't actually prefer, and add that mismatch to the register as its own risk |
+| 4. Cheap tests | The default test menu (fake door, landing pages) only reaches segments already active on web or app; a call-centre- or branch-led segment won't show up in that funnel at all | Match the test to the channel the segment is actually in: a scripted live pitch through call-centre agents, an in-branch offer to walk-in customers, or an IVR/app-banner variant — score against the same pass/kill thresholds as any other test |
+| 6. Launch readiness | A generic "support training" checklist row hides whether every channel that will actually sell or service this is ready | Split channel readiness into its own signed-off rows: call-centre script and agent training, branch staff training and in-branch collateral, app/web release readiness — each with its own named owner |
+| 7. Staged rollout | An aggregate guardrail can look healthy while one channel is quietly failing underneath it | Track guardrails per channel as well as in aggregate: call-centre average handle time and complaint rate, branch queue time, app/web drop-off and error rate; a channel-specific breach pauses that channel's ramp even if the aggregate is fine |
+
+One rule applies everywhere in the table above: **test in the channel you intend to launch in.** A desirability result from a web fake door does not transfer to a segment that actually decides and buys through a call centre or a branch conversation. If the intended launch channel differs from the test channel, that gap is itself a hypothesis to close before Stage 5.
+
 ## Metrics: validation versus success
 
-Validation metrics answer "is the hypothesis true?" and retire at the gate that settles them. Success metrics answer "is the package working as a business?" and need a baseline measured before launch.
+Validation metrics answer "is the hypothesis true?" and retire at the gate that settles them. Success metrics answer "is the offering working as a business?" and need a baseline measured before launch.
 
 | Kind | Metric | Used in | Question it answers |
 | --- | --- | --- | --- |
@@ -478,10 +493,10 @@ Validation metrics answer "is the hypothesis true?" and retire at the gate that 
 | Validation | Pilot retention and price realized | Stage 5 | Do real customers stay and pay? |
 | Validation | Contribution per customer per month | Stages 4-5 | Does it make money? |
 | Success | Penetration of the eligible base | Stages 7-8 | Is it adopted at the expected rate? |
-| Success | Churn of package customers against a control group | Stages 7-8 | Does it keep customers? |
+| Success | Churn of offering customers against a control group | Stages 7-8 | Does it keep customers? |
 | Success | Average revenue per customer and attach rate | Stages 7-8 | How much value per customer? |
 | Success | Contribution margin and acquisition payback | Stages 7-8 | Is the model sustainable? |
-| Success | Net cannibalization of existing packages | Stages 7-8 | Is growth real or shifted from elsewhere? |
+| Success | Net cannibalization of existing offerings | Stages 7-8 | Is growth real or shifted from elsewhere? |
 | Success | Support contacts per customer and satisfaction score | Stages 7-8 | Is it easy to run and to live with? |
 
 Every metric maps to a hypothesis ID in the register. A metric with no hypothesis is dropped.
