@@ -1811,14 +1811,14 @@ function App() {
                       <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 600, fontSize: '17px', marginBottom: '4px' }}>{s.title}</div>
                       <div style={{ fontSize: '14px', color: 'oklch(42% 0.02 260)', fontStyle: 'italic' }}>"{s.question}"</div>
                     </div>
-                    <div style={{ fontSize: '13.5px', lineHeight: 1.6, color: 'oklch(35% 0.02 260)', marginTop: '14px' }}><strong style={{ fontWeight: 600 }}>Produces:</strong> {s.produces}</div>
-                    <div style={{ fontSize: '13.5px', lineHeight: 1.6, color: 'oklch(35% 0.02 260)', marginTop: '8px' }}><strong style={{ fontWeight: 600 }}>Gate:</strong> {s.gate}</div>
                     <div style={{ paddingTop: '16px', marginTop: '16px', borderTop: '1px solid oklch(93% 0.006 255)' }}>
                       <div style={{ fontSize: '11.5px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'oklch(48% 0.02 260)', marginBottom: '8px' }}>What the agent does</div>
                       <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '13.5px', lineHeight: 1.7, color: 'oklch(28% 0.02 260)' }}>
                         {s.steps.map((step, i) => <li key={i}>{step}</li>)}
                       </ul>
                     </div>
+                    <div style={{ fontSize: '13.5px', lineHeight: 1.6, color: 'oklch(35% 0.02 260)', marginTop: '16px' }}><strong style={{ fontWeight: 600 }}>Produces:</strong> {s.produces}</div>
+                    <div style={{ fontSize: '13.5px', lineHeight: 1.6, color: 'oklch(35% 0.02 260)', marginTop: '8px' }}><strong style={{ fontWeight: 600 }}>Gate:</strong> {s.gate}</div>
                   </div>
                   {s.handover && (
                     <div style={{ marginTop: '12px' }}>
