@@ -49,13 +49,17 @@
 
   /* Diagram card + nodes, styled like the site's stage cards */
   .diagram-card { background: #fff; border: 1px solid oklch(89% 0.006 255); border-radius: 14px; box-shadow: 0 1px 2px rgba(16,24,40,0.04); padding: 24px; overflow-x: auto; }
-  .dm-canvas { position: relative; width: 1400px; height: 980px; }
+  .dm-canvas { position: relative; width: 1400px; height: 980px; background: oklch(95% 0.008 255); border-radius: 10px; }
   .dm-node {
-    position: absolute; background: #fff; border: 1px solid oklch(89% 0.006 255); border-radius: 14px;
-    padding: 12px 16px; cursor: pointer; text-align: left;
+    position: absolute; background: #fff; border: 1.5px solid oklch(84% 0.01 255); border-left-width: 4px; border-radius: 12px;
+    padding: 12px 16px 12px 14px; cursor: pointer; text-align: left;
+    box-shadow: 0 2px 6px rgba(16,24,40,0.09);
     transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
   }
-  .dm-node:hover, .dm-node:focus { box-shadow: 0 16px 36px rgba(16,24,40,0.1); transform: translateY(-3px); border-color: oklch(75% 0.08 195); outline: none; }
+  .dm-node.live { border-left-color: oklch(58% 0.13 195); }
+  .dm-node.notstarted { border-left-color: oklch(75% 0.01 255); }
+  .dm-node:hover, .dm-node:focus { box-shadow: 0 16px 36px rgba(16,24,40,0.16); transform: translateY(-3px); border-color: oklch(70% 0.09 195); outline: none; }
+  .dm-node:hover.live, .dm-node:focus.live, .dm-node:hover.notstarted, .dm-node:focus.notstarted { border-left-color: oklch(58% 0.13 195); }
   .dm-node .dm-title { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 15px; color: oklch(18% 0.02 260); margin: 0 0 3px; }
   .dm-node .dm-sub { font-size: 11px; color: oklch(48% 0.02 260); }
   .dm-pill {
@@ -150,66 +154,66 @@
       </svg>
 
       <!-- Main chain -->
-      <button class="dm-node" data-doc="scope" style="left:470px; top:30px; width:300px; height:70px;">
+      <button class="dm-node live" data-doc="scope" style="left:470px; top:30px; width:300px; height:70px;">
         <span class="dm-pill live">Foundation</span>
         <div class="dm-title">Scope</div>
         <div class="dm-sub">scope.md</div>
       </button>
-      <button class="dm-node" data-doc="opportunity" style="left:470px; top:150px; width:300px; height:70px;">
+      <button class="dm-node live" data-doc="opportunity" style="left:470px; top:150px; width:300px; height:70px;">
         <span class="dm-pill live">Stage 1</span>
         <div class="dm-title">Opportunity</div>
         <div class="dm-sub">opportunities.md</div>
       </button>
-      <button class="dm-node" data-doc="case-file" style="left:470px; top:270px; width:300px; height:70px;">
+      <button class="dm-node live" data-doc="case-file" style="left:470px; top:270px; width:300px; height:70px;">
         <span class="dm-pill live">Candidate 1</span>
         <div class="dm-title">Case File</div>
         <div class="dm-sub">stage1-case-file.md</div>
       </button>
-      <button class="dm-node" data-doc="research" style="left:470px; top:390px; width:300px; height:70px;">
+      <button class="dm-node live" data-doc="research" style="left:470px; top:390px; width:300px; height:70px;">
         <span class="dm-pill live">Candidate 1</span>
         <div class="dm-title">Research</div>
         <div class="dm-sub">stage2-problem-discovery.md</div>
       </button>
-      <button class="dm-node" data-doc="hypothesis-register" style="left:470px; top:510px; width:300px; height:70px;">
+      <button class="dm-node live" data-doc="hypothesis-register" style="left:470px; top:510px; width:300px; height:70px;">
         <span class="dm-pill live">Candidate 1</span>
         <div class="dm-title">Hypothesis Register</div>
         <div class="dm-sub">stage3-hypothesis-map.md</div>
       </button>
-      <button class="dm-node" data-doc="cheap-tests" style="left:470px; top:630px; width:300px; height:70px;">
+      <button class="dm-node notstarted" data-doc="cheap-tests" style="left:470px; top:630px; width:300px; height:70px;">
         <span class="dm-pill notstarted">Not started</span>
         <div class="dm-title">Cheap Tests</div>
         <div class="dm-sub">playbook.md — Stage 4</div>
       </button>
-      <button class="dm-node" data-doc="pilot" style="left:470px; top:750px; width:300px; height:70px;">
+      <button class="dm-node notstarted" data-doc="pilot" style="left:470px; top:750px; width:300px; height:70px;">
         <span class="dm-pill notstarted">Not started</span>
         <div class="dm-title">Pilot</div>
         <div class="dm-sub">playbook.md — Stage 5</div>
       </button>
-      <button class="dm-node" data-doc="full-solution" style="left:470px; top:870px; width:300px; height:70px;">
+      <button class="dm-node notstarted" data-doc="full-solution" style="left:470px; top:870px; width:300px; height:70px;">
         <span class="dm-pill notstarted">Not started</span>
         <div class="dm-title">Full Solution</div>
         <div class="dm-sub">playbook.md — Stages 6-8</div>
       </button>
 
       <!-- Right branch -->
-      <button class="dm-node" data-doc="assumptions" style="left:1020px; top:270px; width:260px; height:70px;">
+      <button class="dm-node live" data-doc="assumptions" style="left:1020px; top:270px; width:260px; height:70px;">
         <span class="dm-pill live">Candidate 1</span>
         <div class="dm-title">Assumptions</div>
         <div class="dm-sub">in stage1-case-file.md</div>
       </button>
-      <button class="dm-node" data-doc="hypothesis" style="left:1020px; top:510px; width:260px; height:70px;">
+      <button class="dm-node live" data-doc="hypothesis" style="left:1020px; top:510px; width:260px; height:70px;">
         <span class="dm-pill live">Candidate 1</span>
         <div class="dm-title">Hypothesis</div>
         <div class="dm-sub">rows in stage3-hypothesis-map.md</div>
       </button>
 
       <!-- Left branch -->
-      <button class="dm-node" data-doc="evidence-log" style="left:40px; top:390px; width:260px; height:70px;">
+      <button class="dm-node live" data-doc="evidence-log" style="left:40px; top:390px; width:260px; height:70px;">
         <span class="dm-pill live">Foundation</span>
         <div class="dm-title">Evidence Log</div>
         <div class="dm-sub">evidence-log.md</div>
       </button>
-      <button class="dm-node" data-doc="evidence" style="left:40px; top:510px; width:260px; height:70px;">
+      <button class="dm-node live" data-doc="evidence" style="left:40px; top:510px; width:260px; height:70px;">
         <span class="dm-pill live">Foundation</span>
         <div class="dm-title">Evidence</div>
         <div class="dm-sub">rows in evidence-log.md (E1-E22)</div>
