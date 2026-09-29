@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PM Playbook — Domain Model</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --panel-bg: #ffffff;
+    --text: #1e293b;
+    --text-dim: #64748b;
+    --border: #e2e8f0;
+
+    --live-fill: #eef2ff;
+    --live-border: #4f46e5;
+    --live-text: #312e81;
+
+    --spec-fill: #fafaf9;
+    --spec-border: #a8a29e;
+    --spec-text: #57534e;
+
+    --evidence-fill: #ecfdf5;
+    --evidence-border: #059669;
+    --evidence-text: #064e3b;
+
+    --edge-solid: #334155;
+    --edge-dashed: #059669;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f172a;
+      --panel-bg: #1e293b;
+      --text: #e2e8f0;
+      --text-dim: #94a3b8;
+      --border: #334155;
+
+      --live-fill: #312e81;
+      --live-border: #818cf8;
+      --live-text: #e0e7ff;
+
+      --spec-fill: #292524;
+      --spec-border: #78716c;
+      --spec-text: #d6d3d1;
+
+      --evidence-fill: #064e3b;
+      --evidence-border: #34d399;
+      --evidence-text: #d1fae5;
+
+      --edge-solid: #cbd5e1;
+      --edge-dashed: #34d399;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f172a;
+    --panel-bg: #1e293b;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --border: #334155;
+    --live-fill: #312e81;
+    --live-border: #818cf8;
+    --live-text: #e0e7ff;
+    --spec-fill: #292524;
+    --spec-border: #78716c;
+    --spec-text: #d6d3d1;
+    --evidence-fill: #064e3b;
+    --evidence-border: #34d399;
+    --evidence-text: #d1fae5;
+    --edge-solid: #cbd5e1;
+    --edge-dashed: #34d399;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  header {
+    padding: 24px 24px 8px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  header h1 {
+    font-size: 22px;
+    margin: 0 0 4px;
+  }
+  header p {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin: 0;
+    max-width: 800px;
+    line-height: 1.5;
+  }
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px 24px 48px;
+  }
+  .diagram-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--panel-bg);
+    padding: 8px;
+  }
+  svg { display: block; width: 100%; height: auto; min-width: 900px; }
+
+  .node rect { cursor: pointer; transition: filter 0.15s ease, transform 0.15s ease; }
+  .node:hover rect, .node:focus rect { filter: brightness(1.05); }
+  .node:focus { outline: none; }
+  .node:hover, .node:focus { transform: translateY(-1px); }
+  .node text { pointer-events: none; }
+  .node .title { font-size: 15px; font-weight: 600; }
+  .node .subtitle { font-size: 10.5px; opacity: 0.75; }
+
+  .edge-label { font-size: 10.5px; font-style: italic; fill: var(--text-dim); }
+  .legend-title { font-size: 11px; font-weight: 700; fill: var(--text); }
+  .legend-text { font-size: 11px; fill: var(--text-dim); }
+
+  /* Slide-in panel */
+  #overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+    opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    z-index: 40;
+  }
+  #overlay.open { opacity: 1; pointer-events: auto; }
+
+  #panel {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: min(560px, 100vw);
+    background: var(--panel-bg);
+    border-left: 1px solid var(--border);
+    box-shadow: -8px 0 24px rgba(0,0,0,0.15);
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+  }
+  #panel.open { transform: translateX(0); }
+
+  #panel-header {
+    padding: 20px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  #panel-header h2 {
+    margin: 0 0 8px;
+    font-size: 19px;
+  }
+  #panel-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .badge.live { background: var(--live-fill); color: var(--live-text); border: 1px solid var(--live-border); }
+  .badge.spec { background: var(--spec-fill); color: var(--spec-text); border: 1px solid var(--spec-border); }
+  #panel-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.5; margin: 0; }
+  #panel-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: none; border: none;
+    font-size: 20px; line-height: 1; cursor: pointer;
+    color: var(--text-dim);
+    width: 32px; height: 32px; border-radius: 8px;
+  }
+  #panel-close:hover { background: var(--border); color: var(--text); }
+  #panel-body {
+    padding: 16px 20px 24px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  #panel-body pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    margin: 0;
+    color: var(--text);
+  }
+
+  footer {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px 32px;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" style="display:inline-block;margin-bottom:12px;font-size:13px;color:var(--text-dim);text-decoration:none;">&larr; Back to presentation</a>
+  <h1>PM Playbook — Domain Model</h1>
+  <p>Click any entity to see the actual file content behind it, embedded from this repo. Solid boxes have real content from the Enefit B2C run (Candidate 1); dashed boxes are entities the run hadn't reached yet as of this snapshot, shown from the generic method in <code>playbook/playbook.md</code>. This is a static snapshot generated from the PM-Playbook repo — it may lag behind the latest run status shown elsewhere on this site.</p>
+</header>
+
+<main>
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 1400 980" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow-solid" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L8,3 L0,6 Z" fill="var(--edge-solid)"></path>
+        </marker>
+        <marker id="arrow-dashed" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L8,3 L0,6 Z" fill="var(--edge-dashed)"></path>
+        </marker>
+      </defs>
+
+      <!-- ===================== EDGES ===================== -->
+      <g fill="none">
+        <!-- Main chain -->
+        <path d="M620,100 L620,150" stroke="var(--edge-solid)" stroke-width="2" marker-end="url(#arrow-solid)"><title>Scope sets the segment, sources and budget ceilings every Opportunity must fit</title></path>
+        <path d="M620,220 L620,270" stroke="var(--edge-solid)" stroke-width="2" marker-end="url(#arrow-solid)"><title>A surviving Opportunity gets its own sized Case File</title></path>
+        <path d="M620,340 L620,390" stroke="var(--edge-solid)" stroke-width="2" marker-end="url(#arrow-solid)"><title>Handover to Stage 2: case file and seed hypotheses feed Research</title></path>
+        <path d="M620,460 L620,510" stroke="var(--edge-solid)" stroke-width="2" marker-end="url(#arrow-solid)"><title>Research updates hypothesis statuses and raises new ones</title></path>
+        <path d="M620,580 L620,630" stroke="var(--edge-solid)" stroke-width="2" marker-end="url(#arrow-solid)"><title>Top-priority (risk x uncertainty) rows get a Stage 4 test</title></path>
+        <path d="M620,700 L620,750" stroke="var(--edge-solid)" stroke-width="2" marker-end="url(#arrow-solid)"><title>Go to pilot if top hypotheses are supported and economics hold</title></path>
+        <path d="M620,820 L620,870" stroke="var(--edge-solid)" stroke-width="2" marker-end="url(#arrow-solid)"><title>Go to launch readiness if pilot thresholds and guardrails hold</title></path>
+
+        <!-- Right branch: Case File -> Assumptions -> Hypothesis -> Hypothesis Register -->
+        <path d="M770,305 L1020,305" stroke="var(--edge-solid)" stroke-width="2" marker-end="url(#arrow-solid)"><title>Sizing inputs with no source are logged as Assumptions</title></path>
+        <path d="M1150,340 L1150,510" stroke="var(--edge-solid)" stroke-width="2" marker-end="url(#arrow-solid)"><title>An Assumption enters the register as a Hypothesis</title></path>
+        <path d="M1020,545 L770,545" stroke="var(--edge-solid)" stroke-width="2" marker-end="url(#arrow-solid)"><title>Each Hypothesis is tracked as a row in the Hypothesis Register</title></path>
+
+        <!-- Left branch: Evidence Log -> Evidence -->
+        <path d="M170,460 L170,510" stroke="var(--edge-solid)" stroke-width="2" marker-end="url(#arrow-solid)"><title>The Evidence Log holds one row per piece of Evidence</title></path>
+
+        <!-- Dashed: evidence cited by / produced by every stage -->
+        <path d="M300,425 C380,425 380,305 470,305" stroke="var(--edge-dashed)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrow-dashed)"><title>Every sizing input in the Case File cites an Evidence ID</title></path>
+        <path d="M300,425 L470,425" stroke="var(--edge-dashed)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrow-dashed)"><title>Research both cites existing evidence and logs new coded findings</title></path>
+        <path d="M300,425 C380,425 380,665 470,665" stroke="var(--edge-dashed)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrow-dashed)"><title>Cheap test results are logged back to the Evidence Log</title></path>
+        <path d="M300,425 C380,425 380,785 470,785" stroke="var(--edge-dashed)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrow-dashed)"><title>Pilot readouts and exit interviews are logged as evidence</title></path>
+      </g>
+
+      <!-- ===================== EDGE LABELS (main chain only) ===================== -->
+      <g class="edge-label">
+        <text x="632" y="129">bounds &amp; budget</text>
+        <text x="632" y="249">sized &amp; case-filed</text>
+        <text x="632" y="369">handover to Stage 2</text>
+        <text x="632" y="489">register updated</text>
+        <text x="632" y="609">top rows tested</text>
+        <text x="632" y="729">go to pilot</text>
+        <text x="632" y="849">go to launch</text>
+      </g>
+
+      <!-- ===================== NODES ===================== -->
+      <!-- Scope -->
+      <g class="node" data-id="scope" tabindex="0" role="button" aria-label="Scope">
+        <rect x="470" y="30" width="300" height="70" rx="10" fill="var(--live-fill)" stroke="var(--live-border)" stroke-width="1.5"></rect>
+        <text class="title" x="486" y="60" fill="var(--live-text)">Scope</text>
+        <text class="subtitle" x="486" y="80" fill="var(--live-text)">scope.md</text>
+      </g>
+
+      <!-- Opportunity -->
+      <g class="node" data-id="opportunity" tabindex="0" role="button" aria-label="Opportunity">
+        <rect x="470" y="150" width="300" height="70" rx="10" fill="var(--live-fill)" stroke="var(--live-border)" stroke-width="1.5"></rect>
+        <text class="title" x="486" y="180" fill="var(--live-text)">Opportunity</text>
+        <text class="subtitle" x="486" y="200" fill="var(--live-text)">opportunities.md</text>
+      </g>
+
+      <!-- Case File -->
+      <g class="node" data-id="case-file" tabindex="0" role="button" aria-label="Case File">
+        <rect x="470" y="270" width="300" height="70" rx="10" fill="var(--live-fill)" stroke="var(--live-border)" stroke-width="1.5"></rect>
+        <text class="title" x="486" y="300" fill="var(--live-text)">Case File</text>
+        <text class="subtitle" x="486" y="320" fill="var(--live-text)">stage1-case-file.md</text>
+      </g>
+
+      <!-- Research -->
+      <g class="node" data-id="research" tabindex="0" role="button" aria-label="Research">
+        <rect x="470" y="390" width="300" height="70" rx="10" fill="var(--live-fill)" stroke="var(--live-border)" stroke-width="1.5"></rect>
+        <text class="title" x="486" y="420" fill="var(--live-text)">Research</text>
+        <text class="subtitle" x="486" y="440" fill="var(--live-text)">stage2-problem-discovery.md</text>
+      </g>
+
+      <!-- Hypothesis Register -->
+      <g class="node" data-id="hypothesis-register" tabindex="0" role="button" aria-label="Hypothesis Register">
+        <rect x="470" y="510" width="300" height="70" rx="10" fill="var(--live-fill)" stroke="var(--live-border)" stroke-width="1.5"></rect>
+        <text class="title" x="486" y="540" fill="var(--live-text)">Hypothesis Register</text>
+        <text class="subtitle" x="486" y="560" fill="var(--live-text)">stage3-hypothesis-map.md</text>
+      </g>
+
+      <!-- Cheap Tests (spec only) -->
+      <g class="node" data-id="cheap-tests" tabindex="0" role="button" aria-label="Cheap Tests">
+        <rect x="470" y="630" width="300" height="70" rx="10" fill="var(--spec-fill)" stroke="var(--spec-border)" stroke-width="1.5" stroke-dasharray="6,4"></rect>
+        <text class="title" x="486" y="660" fill="var(--spec-text)">Cheap Tests</text>
+        <text class="subtitle" x="486" y="680" fill="var(--spec-text)">playbook.md — Stage 4 (spec only)</text>
+      </g>
+
+      <!-- Pilot (spec only) -->
+      <g class="node" data-id="pilot" tabindex="0" role="button" aria-label="Pilot">
+        <rect x="470" y="750" width="300" height="70" rx="10" fill="var(--spec-fill)" stroke="var(--spec-border)" stroke-width="1.5" stroke-dasharray="6,4"></rect>
+        <text class="title" x="486" y="780" fill="var(--spec-text)">Pilot</text>
+        <text class="subtitle" x="486" y="800" fill="var(--spec-text)">playbook.md — Stage 5 (spec only)</text>
+      </g>
+
+      <!-- Full Solution (spec only) -->
+      <g class="node" data-id="full-solution" tabindex="0" role="button" aria-label="Full Solution">
+        <rect x="470" y="870" width="300" height="70" rx="10" fill="var(--spec-fill)" stroke="var(--spec-border)" stroke-width="1.5" stroke-dasharray="6,4"></rect>
+        <text class="title" x="486" y="900" fill="var(--spec-text)">Full Solution</text>
+        <text class="subtitle" x="486" y="920" fill="var(--spec-text)">playbook.md — Stages 6-8 (spec only)</text>
+      </g>
+
+      <!-- Assumptions -->
+      <g class="node" data-id="assumptions" tabindex="0" role="button" aria-label="Assumptions">
+        <rect x="1020" y="270" width="260" height="70" rx="10" fill="var(--live-fill)" stroke="var(--live-border)" stroke-width="1.5"></rect>
+        <text class="title" x="1036" y="300" fill="var(--live-text)">Assumptions</text>
+        <text class="subtitle" x="1036" y="320" fill="var(--live-text)">in stage1-case-file.md</text>
+      </g>
+
+      <!-- Hypothesis -->
+      <g class="node" data-id="hypothesis" tabindex="0" role="button" aria-label="Hypothesis">
+        <rect x="1020" y="510" width="260" height="70" rx="10" fill="var(--live-fill)" stroke="var(--live-border)" stroke-width="1.5"></rect>
+        <text class="title" x="1036" y="540" fill="var(--live-text)">Hypothesis</text>
+        <text class="subtitle" x="1036" y="560" fill="var(--live-text)">rows in stage3-hypothesis-map.md</text>
+      </g>
+
+      <!-- Evidence Log -->
+      <g class="node" data-id="evidence-log" tabindex="0" role="button" aria-label="Evidence Log">
+        <rect x="40" y="390" width="260" height="70" rx="10" fill="var(--evidence-fill)" stroke="var(--evidence-border)" stroke-width="1.5"></rect>
+        <text class="title" x="56" y="420" fill="var(--evidence-text)">Evidence Log</text>
+        <text class="subtitle" x="56" y="440" fill="var(--evidence-text)">evidence-log.md</text>
+      </g>
+
+      <!-- Evidence -->
+      <g class="node" data-id="evidence" tabindex="0" role="button" aria-label="Evidence">
+        <rect x="40" y="510" width="260" height="70" rx="10" fill="var(--evidence-fill)" stroke="var(--evidence-border)" stroke-width="1.5"></rect>
+        <text class="title" x="56" y="540" fill="var(--evidence-text)">Evidence</text>
+        <text class="subtitle" x="56" y="560" fill="var(--evidence-text)">rows in evidence-log.md (E1-E22)</text>
+      </g>
+
+      <!-- ===================== LEGEND ===================== -->
+      <g>
+        <rect x="1000" y="20" width="380" height="168" rx="10" fill="var(--panel-bg)" stroke="var(--border)" stroke-width="1"></rect>
+        <text class="legend-title" x="1016" y="40">Legend</text>
+
+        <rect x="1016" y="50" width="18" height="14" rx="3" fill="var(--live-fill)" stroke="var(--live-border)" stroke-width="1.5"></rect>
+        <text class="legend-text" x="1042" y="61">Live — real content from the Enefit run</text>
+
+        <rect x="1016" y="74" width="18" height="14" rx="3" fill="var(--spec-fill)" stroke="var(--spec-border)" stroke-width="1.5" stroke-dasharray="4,3"></rect>
+        <text class="legend-text" x="1042" y="85">Spec only — not reached yet, from playbook.md</text>
+
+        <rect x="1016" y="98" width="18" height="14" rx="3" fill="var(--evidence-fill)" stroke="var(--evidence-border)" stroke-width="1.5"></rect>
+        <text class="legend-text" x="1042" y="109">Evidence — sourced facts (E1-E22)</text>
+
+        <line x1="1016" y1="132" x2="1034" y2="132" stroke="var(--edge-solid)" stroke-width="2" marker-end="url(#arrow-solid)"></line>
+        <text class="legend-text" x="1042" y="136">Process flow (stage-to-stage handover)</text>
+
+        <line x1="1016" y1="156" x2="1034" y2="156" stroke="var(--edge-dashed)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrow-dashed)"></line>
+        <text class="legend-text" x="1042" y="160">Evidence reference (cites / produces)</text>
+      </g>
+    </svg>
+  </div>
+</main>
+
+<footer>
+  Source repo: Tyrmungel/PM-Playbook. Snapshot generated 2026-09-29 from the Enefit B2C 2026 run (Candidate 1, through Stage 3). Hover any arrow for its relationship; click any box to read the file behind it.
+</footer>
+
+<div id="overlay"></div>
+<aside id="panel" aria-hidden="true">
+  <div id="panel-header">
+    <button id="panel-close" aria-label="Close">&times;</button>
+    <h2 id="panel-title"></h2>
+    <div id="panel-badges"></div>
+    <p id="panel-desc"></p>
+  </div>
+  <div id="panel-body"><pre id="panel-content"></pre></div>
+</aside>
+
+<!-- ===================== EMBEDDED FILE CONTENT ===================== -->
+<script type="text/plain" id="content-scope">
+# Run scope, restrictions and preconditions: Enefit B2C New Package
+
+2026-09-21 · Applies to every candidate opportunity in this run. This is the run's precondition document: it must be settled before Stage 1 evidence-gathering restarts, not adjusted mid-run to fit whatever the sizing produces.
+
+This is a homework/self-run application of `playbook/playbook.md`, not a company-commissioned engagement: there is no strategy brief, no internal data access, and no named business approver. The restrictions below stand in for those missing inputs and are treated as fixed for the run unless explicitly revised here.
+
+## Segment and sources
+
+| Item | Value used | Status |
+| --- | --- | --- |
+| Segment | B2C electricity/energy customers in Estonia is the fixed scope; the sub-segment (household type, tenure, contract type) is intentionally left open and should follow whatever the evidence shows, not a preset assumption | Approved by Jüri Tomingas, 2026-09-21 |
+| Sources allowed | Public web, public statistics, regulator and company publications, competitor sites | Set |
+| Sources not available | Enefit internal data (churn, tickets, usage, CRM), a strategy brief, legal counsel, a financing/leasing partner quote | Set — every hypothesis that would need one of these stays untested and is logged as a hypothesis, not resolved by proxy |
+| Customer contact | None without explicit approval logged here first | Set |
+| Group footprint note | Eesti Energia/Enefit operates across Estonia, Latvia, Lithuania and Poland with 560,000+ retail customers. Scope stays Estonia per the assignment; other markets count only as analogous-market evidence or competitive-threat signal, never as home-market evidence | Set |
+
+**Effect on confidence:** without churn reasons, ticket clusters or usage data, every problem is scored from external proxies. Evidence defaults to Medium or Low on the playbook's confidence scale until real interviews or internal data enter the log; every candidate's sizing and gate proposal must say so plainly rather than presenting ranges as settled.
+
+## Budget ceilings, by stage
+
+The previous pass used one flat "discovery budget" (€50,000) covering everything through Stage 4. That conflates two different things: the cost to size and screen an opportunity (cheap, mostly analyst/agent time) and the cost to actually test it with real people (the number that should scale with what a stage risks). Splitting it by stage makes each ceiling defensible on its own, instead of one round number inherited from the last run.
+
+| Stage | Ceiling | Reasoning | Status |
+| --- | --- | --- | --- |
+| 1. Opportunity framing | No cash budget — time-boxed desk research only | Public-source sizing and scoring cost analyst/agent time, not spend | Set |
+| 2. Problem discovery | €500-1,000 | Covers interview incentives for 8-12 interviewees (or 15-20 non-customers under the new-to-company adaptation) plus a recruiting panel fee if one is used; no paid media | Approved by Jüri Tomingas, 2026-09-21 |
+| 3. Hypothesis map | No dedicated budget | Synthesis and function-reviewer time only | Set |
+| 4. Cheap tests | €500-1,500 per test, €2,000-6,000 total across the queued hypotheses | See "Why cheap tests are cheaper now" below | Approved by Jüri Tomingas, 2026-09-21 |
+| 5. Pilot | Capped by capital intensity — see table below, not one number | A pilot for a software-only candidate and a pilot for a hardware-and-financing candidate are not the same order of spend; one ceiling would either starve the cheap candidate or be meaningless for the expensive one | Approved by Jüri Tomingas, 2026-09-21 |
+
+### Why cheap tests are cheaper now
+
+The €50,000 discovery budget in the previous pass was sized for a world where a fake-door page, a concierge-test script or a price-variant landing page each needed a dedicated build. With AI-assisted tooling (AI site builders, agent-drafted copy and prototypes, no-code forms), the build cost of most Stage 4 tests on the menu collapses to near zero — the real spend is traffic and incentives, not construction:
+
+| Test | What actually costs money now | Realistic range |
+| --- | --- | --- |
+| Fake door landing page / banner | Paid traffic to get a statistically usable sample (Estonia is a small, low-CPC market) | €300-800 |
+| Concierge test (10-20 volunteers) | Honorarium per volunteer, not build cost | €200-1,000 |
+| Price-variant landing pages | Same traffic logic, run across 2-3 variants | €500-1,000 |
+| Technical spike | Engineering time already covered by the team, not a separate line | €0 dedicated |
+| Legal desk review | Only a cost if outsourced to external counsel; free if resolved in-house | €0-1,500 |
+| Economics model | Analyst/agent time | €0 dedicated |
+
+A €50,000 ceiling for this stage would be roughly 10-20x what any single test on the menu actually needs today. Setting it artificially high invites tests that are bigger than the hypothesis warrants, which cuts against the playbook's own "evidence grows with spend" rule — spend should track the risk being retired, not the budget available.
+
+### Pilot cost, by capital intensity
+
+Stage 5 is where this really matters, because the two most likely candidate types from Stage 1 sit at opposite ends of capital intensity, and one pilot ceiling would misprice one of them:
+
+| Candidate profile | Pilot cost driver | Realistic range for 100-500 customers | Implication |
+| --- | --- | --- | --- |
+| Software/automation (no hardware, layered on an existing billing relationship) | Engineering, support headcount time, a waived or discounted fee for early users | €5,000-20,000 | Fits inside a self-funded pilot; AI-assisted engineering keeps marginal cost per customer near zero |
+| Hardware-and-financing (installation, equipment, consumer credit exposure) | Real equipment and installation cost per customer, not just service delivery | €50,000-300,000+ depending on subsidy or leasing structure | Above roughly €50,000 without an external financing or leasing partner funding the hardware, this is a signal to hold or kill before Stage 5, not a number to self-fund from this run's budget |
+
+This is a business-scale judgment about what a hardware pilot actually costs, not a validation-cost estimate — treat any specific figure a candidate's case file produces as a hypothesis with a range, same as every other unsourced input, and cite it as such.
+
+## Minimum prize
+
+| Item | Value used | Status |
+| --- | --- | --- |
+| Minimum prize | Base case of at least €500,000/year | Approved by Jüri Tomingas, 2026-09-21 |
+
+The previous pass derived this as "10x the discovery budget." That heuristic breaks once the budget itself shrinks for reasons that have nothing to do with how big the opportunity needs to be — cheaper tooling doesn't make Enefit's bar for a new revenue line any lower. The minimum prize is kept at the same €500,000/year figure as before, but as an independent business-scale judgment (a new package should be a meaningful line relative to Enefit's existing B2C portfolio), not as a multiple of the Stage 4 budget above. If a real minimum prize is ever supplied by an actual strategy brief, it replaces this figure outright rather than being reconciled with it.
+
+## Approvals
+
+All items above were approved by **Jüri Tomingas**, standing in as the named business approver for this homework run, on 2026-09-21. Evidence log, opportunity list and gate decision are rebuilt fresh from live research when Stage 1 runs — nothing from the deleted previous pass carries forward as evidence, since the point of restarting was not to inherit its assumptions unexamined.
+</script>
+
+<script type="text/plain" id="content-opportunity">
+# Opportunities — Enefit B2C New Package (Stage 1, restarted 2026-09-21)
+
+Fresh pass per `scope.md`'s Approvals section: segment stays fixed at "B2C electricity/energy customers in Estonia," but the sub-segment is intentionally left open rather than preset — each candidate below names its own working sub-segment based on what the evidence pointed to, not a shared assumption. Every candidate below is logged before narrowing, per the playbook's Stage 1 step 2-3.
+
+## Candidate problem statements
+
+**Candidate 1 — Price-spike / bill-protection hybrid package.**
+"Estonian households on a market-price (stock-exchange) electricity package struggle to avoid bill shocks during price-spike periods because pure market pricing has no built-in ceiling; today they either accept the volatility, overpay for a fully fixed contract, or switch supplier entirely." (H1.1)
+
+**Candidate 2 — Smart home energy optimizer / automated load response.**
+"Estonian households with flexible-tariff or market-price contracts struggle to actually shift consumption to cheap hours because doing it manually is tedious and easy to forget; today most just don't, and let the tariff structure's savings go unrealized." (H2.1)
+
+**Candidate 3 — Solar-and-storage subscription bundle.**
+"Estonian homeowners who want to cut their electricity bill with solar and storage struggle to do so because the upfront hardware and installation cost is a large lump sum with financing friction; today they either self-fund a solar-only install, delay indefinitely, or don't consider it at all." (H3.1)
+
+**Candidate 4 — Heat-pump-as-a-service bundle.**
+"Owners of older, non-heat-pump-heated Estonian homes struggle to switch to cheaper heating because the €7,000-10,000+ upfront cost is a barrier even with the KredEx subsidy; today they stay on their existing (often more expensive) heating system." (H4.1)
+
+**Candidate 5 — EV home-charging + electricity bundle.**
+Carried over from the earlier (deleted) pass's framing, but re-scored fresh rather than assumed. (H5.1)
+
+## Scoring (1-5 each: frequency, pain, size, ease of reaching the segment)
+
+| Candidate | Frequency | Pain | Size | Ease of reach | Total | Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1. Price-spike hybrid package | 4 — every billing cycle carries the exposure, and spikes recur seasonally | 4 — a rival's own launch cites "surprisingly high bills" as the trigger | 5 — addressable across nearly the whole household base, not a niche | 5 — existing customers, existing billing channel, no new acquisition needed | **18** | E2, E3 |
+| 2. Smart home energy optimizer | 3 — only matters if the customer already has a flexible tariff | 3 — plausible but no direct behavioral or interview evidence of the pain, only that competitors are building toward it | 3 — large in theory, gated by smart-meter/device readiness | 2 — no existing capability or channel evidenced; would need new build | **11** | E8, E13, E14 |
+| 3. Solar-and-storage subscription | 2 — a one-time purchase decision, not a recurring pain point | 4 — real, well-documented capital barrier | 3 — large headroom (current microproducer penetration is low relative to the full base) but adoption-gated by capital appetite | 2 — needs installation/financing capability beyond Enefit's current billing relationship | **11** | E6, E9, E10, E11 |
+| 4. Heat-pump-as-a-service | 2 — one-time decision | 4 — real upfront-cost barrier even after subsidy | 3 — large in theory, but new-construction already self-solves via heat pumps at a high rate, so the real opportunity is a narrower retrofit segment | 1 — no evidenced Enefit installer or financing-partner relationship at all, weaker than Candidate 3's existing small-producer infrastructure | **10** | E9, E10, E11 |
+| 5. EV home-charging + electricity bundle | 4 — charging is frequent | 2 — no direct evidence of unmet pain; home charging today is just using home electricity, and the 2026 EV data is a distorted signal, not a clean growth story | 2 — national EV fleet is still a low single-digit share of the vehicle stock | 4 — existing billing relationship | **12** | E7, E12 |
+
+All five candidates were carried through the full strategic fit test, sizing, cannibalization check and hypothesis logging this pass — not narrowed to the top three by score alone — so that every opportunity gets a properly analyzed, standalone case file before the run commits to one. See each candidate's `stage1-case-file.md` for the full workup; this table summarizes the result.
+
+## Strategic fit test (all five candidates)
+
+| Candidate | Strategic priority | Right to win | Capability and risk | Result |
+| --- | --- | --- | --- | --- |
+| 1. Price-spike hybrid package | Unclear — no internal strategy brief exists in this homework run (per `scope.md`), but a domestic competitor already moved here in direct response to the same market event (E2), which is a real competitive-urgency signal even though it's not the adjacent-country signal the playbook's bundling lens describes. Logged as hypothesis H1.2. | **Pass** — Enefit has the larger incumbent billing relationship (vs. Elektrum) and has already shown it can layer differentiated contract terms into its core package via the existing insurance bundle (E4). | **Pass** — this is a pricing/hedging product, not a new regulated activity; Eesti Energia's own trading function (implied by its generation and market operations, E15) gives it a hedging capability a pure retailer lacks. Low legal risk. | **2 Pass, 1 Unclear — strongest result** |
+| 2. Smart home energy optimizer | Unclear — plausible fit with a general energy-transition narrative, but nothing evidenced. Hypothesis H2.2. | **Fail** — no evidence Enefit has shipped or is building this (E8), while Baltic-adjacent competitors (Ignitis, Tibber) already have live dynamic-pricing/app products (E13, E14). This matches the strategic fit test's own fail signal exactly: "no advantage over rivals that we can name and prove." | Not reached — a Fail on right-to-win parks the candidate regardless. | **Fails right-to-win** |
+| 3. Solar-and-storage subscription | Unclear — plausible fit with a renewables/energy-transition priority for a state-owned energy group, but not confirmed by any brief. Hypothesis H3.3. | **Pass** — Eesti Energia group already runs utility-scale battery storage (Auvere) and a renewables generation arm (Enefit Green, E16), plus Enefit already operates a small-producer/net-metering package today (E5) — real, provable assets, even though they sit at a different scale than a B2C hardware-installation business. | **Unclear** — capital intensity is high; per `scope.md`'s own Pilot-cost table, a hardware-and-financing candidate above ~€50,000 without an external financing/leasing partner is a hold/kill signal before Stage 5, and no such partner is evidenced yet. Hypothesis H3.4. | **1 Pass, 2 Unclear** |
+| 4. Heat-pump-as-a-service | Unclear — plausible fit with heating electrification, nothing evidenced. Hypothesis H4.3. | **Fail** — no evidenced installer or financing capability at all, and (unlike C) no existing Enefit infrastructure to extend. | Not reached. | **Fails right-to-win** |
+| 5. EV home-charging + electricity bundle | Unclear — plausible fit with transport electrification, nothing evidenced. Hypothesis H5.2. | **Pass, conditionally** — Enefit's existing billing relationship is a real asset for a home-bundle angle specifically; Ignitis's Baltic move is in public charging infrastructure, a different business. | **Pass** — no new hardware needed from Enefit itself, low legal risk. | **2 Pass, 1 Unclear — passes strategic fit, but killed on prize size (see sizing)** |
+
+## What each case file adds beyond strategic fit
+
+Every candidate's `stage1-case-file.md` sizes the prize (conservative/base/optimistic), runs the cannibalization check, and logs seed hypotheses — regardless of whether it passed strategic fit — so the gate decision can compare all five on equal footing rather than only on the two or three that happened to pass:
+
+- candidate-1-price-protection-hybrid/stage1-case-file.md — base case €840,000/year. Strongest on both strategic fit and economics.
+- candidate-2-smart-optimizer/stage1-case-file.md — base case €450,000/year, misses the minimum prize even before the right-to-win Fail is considered.
+- candidate-3-solar-storage-subscription/stage1-case-file.md — base case exactly €500,000/year, gated on an unproven financing partner.
+- candidate-4-heat-pump-service/stage1-case-file.md — base case €240,000/year, weakest economics of the five, and fails right-to-win.
+- candidate-5-ev-charging-bundle/stage1-case-file.md — passes strategic fit, but even its optimistic case (€210,000/year) misses the minimum prize — a clean kill on size alone, per the playbook's "kill if even the optimistic case misses the minimum" rule.
+
+## What proceeds to Stage 2
+
+One candidate: **Candidate 1**. See `gate-decision.md` for the full comparison and reasoning across all five.
+</script>
+
+<script type="text/plain" id="content-case-file">
+# Stage 1 case file — Candidate 1: Price-spike / bill-protection hybrid package
+
+**Current stage:** 1 — Opportunity framing (complete; Go approved in `../gate-decision.md`, 2026-09-21). Stage 2 in progress — see `stage2-problem-discovery.md`.
+**Owner:** Jüri Tomingas (homework run — standing in as named business approver, per `../scope.md`)
+
+## Problem statement
+
+"Estonian households on a market-price (stock-exchange) electricity package struggle to avoid bill shocks during price-spike periods because pure market pricing has no built-in ceiling; today they either accept the volatility, overpay for a fully fixed contract, or switch supplier entirely." (H1.1)
+
+## Segment
+
+B2C electricity customers in Estonia currently on, or recently moved onto, a market/stock-exchange-price package — including the wave of former universal-service customers who were automatically transferred to a market package when universal service ended 30 April 2026 (E3). Sub-segment intentionally not narrowed further than this at Stage 1, per `../scope.md`'s segment note; Stage 2 interviews should test whether the pain concentrates in a narrower group (e.g., lower-income households with less price-hedging headroom) or is broad-based.
+
+## Why now
+
+A domestic competitor, Elektrum, already launched a directly comparable hybrid product ("Paindlik Klõps," 50% fixed / 50% market price) explicitly because early-2026 price spikes produced "surprisingly high" bills and a wave of customers reviewing their packages (E2). Separately, the 30 April 2026 universal-service closure moved every remaining universal-service customer onto a pure market-price package by default (E3) — a large, freshly price-exposed population that did not necessarily choose that exposure. These two events together are a timing signal, not just a standing market gap: Enefit does not yet have a publicly evidenced equivalent hybrid product.
+
+## Strategic fit result (from `../opportunities.md`)
+
+Pass (right to win, capability/risk) with one open hypothesis (H1.2: strategic priority, since no internal brief exists in this homework run — see Hypotheses below).
+
+## Sizing
+
+**Every input below is either cited to an evidence ID or explicitly labeled an assumption. None of these figures come from internal Enefit data — none is available in this run (per `../scope.md`).**
+
+| Input | Value used | Basis |
+| --- | --- | --- |
+| Estonia B2C household base reachable by Enefit | 250,000-350,000 accounts | **Assumption** — E16 gives 560,000+ retail customers *group-wide across four countries*; no Estonia-only household figure was found in this pass, so this is a bracketed guess, not a citation. Flagged as the single most important number to replace with real data at Stage 2. |
+| Realistic adoption within ~2 years of launch | 5% (conservative) / 8% (base) / 15% (optimistic) | **Assumption** — no comparable Enefit product-launch adoption-curve data available; range chosen to bracket a slow-uptake case against a case where the universal-service transition drives faster opt-in. |
+| Incremental value per adopting customer per year | €20 (conservative) / €35 (base) / €60 (optimistic) | **Assumption** — this is a margin/fee premium on a hybrid vs. a standard package, not a new large fee product; range reflects that this is a pricing-mix product, not a hardware or subscription upsell. |
+
+**Sized prize (conservative / base / optimistic):**
+
+- Conservative: 250,000 × 5% × €20 = **€250,000/year** — misses the €500,000/year minimum prize.
+- Base: 300,000 × 8% × €35 = **€840,000/year** — clears the minimum prize.
+- Optimistic: 350,000 × 15% × €60 = **€3,150,000/year** — clears the minimum prize with margin.
+
+The conservative case misses the bar; base and optimistic clear it. This is the honest range given how thin the underlying customer-count and adoption assumptions are — Stage 2 should prioritize replacing the customer-base assumption with a real number before trusting this range further.
+
+## Indirect value (separate from fees)
+
+Churn reduction versus rivals now offering a comparable hybrid product (Elektrum, E2) is the most plausible indirect value here, but it cannot be quantified without churn data, which this run does not have access to (per `../scope.md`). Logged as hypothesis H1.5, not included in the sized prize above.
+
+## Cannibalization check
+
+This is very likely to cannibalize Enefit's own existing fixed-rate and pure-market-price packages rather than pull in large numbers of net-new customers — it is a third pricing option layered onto the same base, not a new market. The honest framing of the sizing above is therefore closer to a margin-mix shift plus an anti-churn effect against rivals, not pure incremental revenue. This should be stated plainly in the gate decision rather than presented as a clean new revenue line (H1.6).
+
+## Hypotheses raised (seed register for this candidate)
+
+| ID | Type | Statement | Risk (1-5) | Uncertainty (1-5) | Status | Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| H1.1 | Desirability | We believe market-price customers will adopt a hybrid bill-protection package because recent bill shocks made pure market exposure feel risky. We will know we are right when opt-in reaches the base-case adoption rate within 12 months of launch. | 4 | 4 | Untested | E2, E3 |
+| H1.2 | Strategic | We believe this fits an Enefit growth/retention priority, but no internal strategy brief confirms it in this homework run. | 3 | 5 | Untested (unclear at strategic fit) | — |
+| H1.3 | Viability | We believe the wave of ex-universal-service customers (E3) is disproportionately likely to want a hybrid product versus long-standing market-price customers. | 3 | 4 | Untested | E3 |
+| H1.4 | Feasibility | We believe Enefit's existing capability to layer differentiated contract terms (proven by the insurance bundle, E4) extends to a pricing-structure product, not just an add-on service. | 2 | 3 | Untested | E4 |
+| H1.5 | Viability | We believe this package reduces churn versus rivals now offering a comparable hybrid product, but this cannot be measured without churn data this run lacks. | 3 | 5 | Untested — needs internal data access | E2 |
+| H1.6 | Viability | We believe most adopters will come from Enefit's own existing base (cannibalizing its own fixed/market packages) rather than from switching in from rivals. | 3 | 3 | Untested | — (assumption, no source) |
+
+## Gate proposal (this candidate individually)
+
+**Go**, per the playbook's Stage 1 gate rule: base-case prize (€840,000/year) clears the minimum prize (€500,000/year), the strategic fit test passed on 2 of 3 questions, no legal blocker is visible, and the segment is directly reachable through Enefit's existing billing channel. The open items (Estonia-only customer count, adoption-rate assumption, cannibalization split) are Stage 2 data-gathering and interview priorities, not reasons to hold at Stage 1 — they're exactly the kind of thing 8-12 real interviews and any internal usage-data access would settle quickly.
+</script>
+
+<script type="text/plain" id="content-assumptions">
+[Same file as Case File — runs/enefit-b2c-2026/candidate-1-price-protection-hybrid/stage1-case-file.md — showing the "Sizing" section, where every unsourced number is explicitly labeled an Assumption before entering the Hypothesis Register.]
+
+## Sizing
+
+**Every input below is either cited to an evidence ID or explicitly labeled an assumption. None of these figures come from internal Enefit data — none is available in this run (per `../scope.md`).**
+
+| Input | Value used | Basis |
+| --- | --- | --- |
+| Estonia B2C household base reachable by Enefit | 250,000-350,000 accounts | **Assumption** — E16 gives 560,000+ retail customers *group-wide across four countries*; no Estonia-only household figure was found in this pass, so this is a bracketed guess, not a citation. Flagged as the single most important number to replace with real data at Stage 2. |
+| Realistic adoption within ~2 years of launch | 5% (conservative) / 8% (base) / 15% (optimistic) | **Assumption** — no comparable Enefit product-launch adoption-curve data available; range chosen to bracket a slow-uptake case against a case where the universal-service transition drives faster opt-in. |
+| Incremental value per adopting customer per year | €20 (conservative) / €35 (base) / €60 (optimistic) | **Assumption** — this is a margin/fee premium on a hybrid vs. a standard package, not a new large fee product; range reflects that this is a pricing-mix product, not a hardware or subscription upsell. |
+
+**Sized prize (conservative / base / optimistic):**
+
+- Conservative: 250,000 × 5% × €20 = **€250,000/year** — misses the €500,000/year minimum prize.
+- Base: 300,000 × 8% × €35 = **€840,000/year** — clears the minimum prize.
+- Optimistic: 350,000 × 15% × €60 = **€3,150,000/year** — clears the minimum prize with margin.
+
+The conservative case misses the bar; base and optimistic clear it.
+
+---
+
+From the playbook's Agent contract (playbook/playbook.md), the general rule these assumptions follow:
+
+2. A figure taken from memory or estimated is written as an assumption with a range, and enters the register as a hypothesis.
+
+And from the Stage 1 agent steps:
+
+8. Log every input to the sizing as a hypothesis in the register, with a source or an "assumption" label.
+
+This is exactly what happened above: three unsourced numbers, each labeled Assumption with a range, each of which becomes hypotheses H1.1 and related rows in the Hypothesis Register (see stage3-hypothesis-map.md).
+</script>
+
+<script type="text/plain" id="content-evidence-log">
+# Evidence log — Enefit B2C New Package (Stage 1, restarted 2026-09-21)
+
+Fresh pass. Nothing from the deleted prior run carries forward — every row below was sourced live during this run. Fields per `playbook/playbook.md`'s Evidence log convention: ID, date, source, type, claim, confidence, linked hypotheses. Confidence follows the playbook's three-tier scale (High/Medium/Low); per `scope.md`, everything here defaults to Medium or Low since no internal Enefit data (churn, tickets, usage) is available in this homework run.
+
+| ID | Date logged | Source | Type | Claim | Confidence | Linked hypotheses |
+| --- | --- | --- | --- | --- | --- | --- |
+| E1 | 2026-09-21 | elektrihind.ee/paketid | Desk | Estonia has an independent electricity-package comparison portal listing exchange-based, fixed-rate and variable-rate packages across all major sellers (Enefit, Elektrum, Alexela) — the market is price-transparent and switching-friendly | Medium | H1.1 |
+| E2 | 2026-09-21 | Elektrum toob turule ainulaadse fikseeritud ja börsihinna hübriidpaketi (ringfm.treraadio.ee); Baltic Times | Desk (competitor launch) | Elektrum launched "Paindlik Klõps," a 50% fixed / 50% market-price hybrid package, explicitly because sharp market-price spikes in early 2026 produced "surprisingly high" bills for many households, prompting a wave of package reviews | Medium — a live competitor product launch is a real behavioral proxy for market pain, not just opinion | H1.1, H1.2 |
+| E3 | 2026-09-21 | elektrihind.ee/universaalteenus; Enefit blog: Kõik, mida pead teadma elektri universaalteenuse lõppemisest | Desk | Estonia's universal electricity service ended 30 April 2026; every remaining universal-service customer was automatically and freely transferred to a stock-market-price package unless they actively chose otherwise | High — regulator/company-published fact, dated, unambiguous | H1.1, H1.3 |
+| E4 | 2026-09-21 | energia.ee/era/kindlustus | Desk (own product page) | Enefit already bundles household electrical-equipment insurance (via If P&C) and fire insurance (via BTA Baltic) into its electricity/gas contracts today — Enefit holds the policy, the customer is the insured party | High — Enefit's own live product page | H1.4, H3.1 |
+| E5 | 2026-09-21 | enefit.ee/era/elekter/elektrileping-ja-paketid | Desk (own product page) | Enefit already runs unified billing (electricity + Elektrilevi grid fee on one invoice) and already has a "small producer" package for customers generating up to 1,000 kW, letting them consume their own production and sell the surplus back to Enefit | High — Enefit's own live product page | H3.1, H3.2 |
+| E6 | 2026-09-21 | Elektrilevi: Elektrilevi võrgus on 22 825 elektritootjat | Desk (network operator data) | As of Q1 2025, Elektrilevi's network had 22,825 connected electricity producers, 13,455 of them microproducers; 353 new producers connected in Q1 2025 alone (305 microproducers). Solar plants grew from 2,857 to 22,348 and solar capacity grew ~8x over five years (110 MW → 829 MW) | Medium — network-operator data, Estonia-wide, not Enefit-specific, and roughly 18 months old at the time of this run | H3.1, H3.3 |
+| E7 | 2026-09-21 | Automaailm.ee / Estonian EV market outlook (via search aggregation) | Desk | Q1 2026 EV sales were +16.1% YoY (260 units) and the national EV fleet passed 10,000, but BEV market *share* fell from 10.6% to 6.1% purely because the total car market grew +100.4% YoY (a 2025 car-tax change pulled registrations forward); 2026 carries new EV tax exemptions and a CO2-linked registration discount | Medium — Estonia-specific, but the share figure needs the base-rate distortion explained, or it reads as a decline when unit sales actually grew | H5.1 |
+| E8 | 2026-09-21 | Absence of result across multiple targeted searches for an Enefit automated/smart load-shifting or dynamic-response household feature | Desk (absence of evidence) | No public evidence found that Enefit has shipped an automated or app-driven load-shifting/demand-response feature for B2C households, as of this search pass | Low — absence in search results is not proof of absence; could exist but be poorly indexed or unlaunched | H2.1 |
+| E9 | 2026-09-21 | ait-nord.ee/soojuspumba-hind | Desk (single retailer pricing) | Air-to-water heat pumps in Estonia in 2026 start at €7,467 + VAT excl. installation; installation adds €700-1,500 for a single-family home; the KredEx subsidy (up to €10,000) can bring net personal cost under €10,000 | Low — one retailer's own pricing page, not a market-wide figure | H4.1 |
+| E10 | 2026-09-21 | bestair.ee | Desk (vendor marketing claim) | One heat-pump retailer (Bestair) claims over 3,500 customers choose a heat pump from them each year, citing rising energy prices as the driver | Low — vendor's own marketing claim, unverified against independent data | H4.1 |
+| E11 | 2026-09-21 | Statistikaamet (stat.ee) via aggregated search result | Desk (official statistics) | Roughly 60% of Estonian houses built in 2016 or later use an air- or ground-source heat pump for heating (6.5% air-only, 11.5% ground-only, remainder combined/other); electric-only heating stays marginal (~3%) across the overall housing stock | Medium — official statistics agency, but exact publication vintage not confirmed from the search snippet, and the sub-shares don't cleanly reconcile to 60% as quoted | H4.1, H4.2 |
+| E12 | 2026-09-21 | Ignitis grupė: Access to all Ignitis ON charging points in the Baltic states with a single app | Desk (sibling-market competitor) | Starting January 2026, Ignitis unified its EV fast-charging app (Ignitis ON) across Lithuania, Latvia and Estonia into one app | Medium — real product, but a Baltic *competitor's* move, not Eesti Energia's own market or product; competitive-urgency signal for cross-border/mobility bundling, not home-market evidence | H5.1 |
+| E13 | 2026-09-21 | Energy Exemplar / RESET.org coverage of Ignitis dynamic tariffs | Desk (analogous-market proxy) | Ignitis introduced 15-minute-interval dynamic electricity tariffs in the Lithuanian market, expanding this further in autumn 2025 | Low-Medium — cross-market proxy per the playbook's adjacent-market rule, not Estonian evidence; weaker than a home-market source | H2.1 |
+| E14 | 2026-09-21 | Multiple Tibber/marketplace vendor pages (via search aggregation) | Desk (analogous-market proxy) | Tibber's dynamic-pricing consumer app model, including a retrofit hardware add-on ("Pulse") that turns a digital meter into a connected one, is referenced as relevant to Baltic-adjacent markets; no evidence found of a live Tibber–Enefit or Tibber–Estonia household partnership | Low — no direct Estonia deployment confirmed | H2.1 |
+| E15 | 2026-09-21 | Eesti Energia Group Unaudited Results for Q2 2026 (GlobeNewswire) | Desk (own financial disclosure) | Q2 2026: Group revenue €374M (-2% YoY), EBITDA €56M (-28% YoY), net loss €9M (vs. +€27M net profit Q2 2025). H1 2026: revenue €940M (+4%), EBITDA €175M (-8%), net profit €41M. The EBITDA decline is attributed mainly to the "other products and services" segment's unusually strong 2025 comparison base (frequency services), not specifically to B2C retail | High — Eesti Energia's own audited-basis interim disclosure | H1.2, H3.4 |
+| E16 | 2026-09-21 | Eesti Energia to consolidate electricity business under subsidiary Enefit (GlobeNewswire) | Desk (own corporate disclosure) | Following consolidation, Enefit will serve 560,000+ retail customers across Estonia, Latvia, Lithuania and Poland, and will directly hold assets including the Auvere battery storage facility and Iru cogeneration plant, plus 1,200 MW of renewable generation moving in from Enefit Green | High — Eesti Energia's own corporate announcement | H3.4 |
+| E17 | 2026-09-21 | Postimees: Elektri börsihind teeb järsu hüppe | Desk (market data reporting) | On 12 June 2026, Estonia's Nord Pool price spiked to a daily average of €93.99/MWh with an evening peak of €359.01/MWh (19:45-20:00) — a concrete, dated spike event, additional to the general pattern already logged in E2 | Medium — dated, sourced market-price reporting | H1.1 |
+| E18 | 2026-09-21 | Postimees: Puust ja punaseks — miks elektriarve jaanuaris oli suurem kui varasem rekordarve? | Desk (news analysis) | January 2026 bills for many households set a new record, surpassing the previous record from the December 2021 energy crisis; unlike 2021, the state is not compensating grid fees this time, so "consumers must manage on their own" | Medium — named, dated news analysis with an explicit contrast to the 2021 precedent | H1.1, H1.2 |
+| E19 | 2026-09-21 | Postimees: Elektri tähtajaliste lepingute hinnad lähevad sügise eel järsult üles. Kas tarbijad on juba hiljaks jäänud? | Desk (news analysis) | Ahead of autumn 2026, households want to switch to fixed-price contracts to protect against winter volatility, but fixed-price offers (especially 6-month terms) have themselves risen sharply — the "safe" alternative is getting more expensive right as demand for it rises | Medium | H1.1, H1.6 |
+| E20 | 2026-09-21 | Enefit blog: Lugeja küsib: "Miks on vaatamata odavale keskmisele börsihinnale mu elektriarve suur?" | Desk (own company content) | Enefit publishes a dedicated customer-facing explainer for "why is my bill high despite a low average market price" — evidence the confusion is common enough to warrant an official FAQ; the only remedy Enefit offers in the post is switching to its existing all-or-nothing fixed-price package, not a hybrid | Medium — Enefit's own content; confirms the problem is recognized internally and that no hybrid product exists there yet | H1.1, H1.2 |
+| E21 | 2026-09-21 | biker.ee forum, "Oma (hirmkalli) elektri/kütte arve olete juba kätte saanud?" (thread dated Jan-June 2022) | Desk (public forum, historical/analogous — used as a ticket-mining proxy, per this run's Stage 2 adaptation) | During the 2021-2022 energy-price crisis, this single forum thread ran 34 pages / ~998 posts over several months: posters reported bills 2-3x the prior year, discussed switching to fixed-price contracts, and (later in the thread) discovered that Eesti Energia's variable "hourly" package, used by ~100,000 legacy-meter customers, was actually billed on a daily-average basis rather than true hourly pricing — prompting complaints and provider-switching | Low-Medium — real, sustained customer behavior, but dated 2022, not 2026; used here only as analogous historical precedent, not current-state evidence. The legacy-meter billing-methodology claim specifically is unverified for 2026 and must not be assumed still true | H1.1, H1.6, H1.7 |
+| E22 | 2026-09-21 | Perekooli Foorum — topics "Elektriarved", "Elektri börsihind", "Elektrum", "Elektri hind tulevikus", "Kas elektri hind on tõusnud?" | Desk (public forum, ticket-mining proxy) | Estonia's most active household forum hosts multiple separate, long-running discussion threads dedicated specifically to electricity pricing and bill complaints — used as a public stand-in for "ticket/complaint volume" in place of Enefit's own (unavailable) support-ticket data, per this run's Stage 2 adaptation | Low — proxy signal only; no exact volume or date range confirmed per thread | H1.1 |
+
+**What's still missing after Stage 1** (carried into Stage 2 as data-access items, not resolved here): Enefit's own Estonia-only household customer count (E16 is group-wide across four countries, not Estonia B2C alone — every sizing input below that needs this number is an explicit assumption, not a citation); Enefit's actual current package list with feature-level detail (the product page did not expose it); any churn, ticket or usage data; any direct customer interview or behavioral test data.
+
+**Stage 2 status (2026-09-21):** per this run's explicit instruction, Stage 2 for Candidate 1 used only publicly available sources to look for signal (E17-E22 above) — no internal data access and no real customer contact. The steps that need internal data or real interviews (segment-in-data, ticket mining proper, interview execution, interview coding) are logged as **Planned, not run** in `candidate-1-price-protection-hybrid/stage2-problem-discovery.md`, not resolved by the public-signal proxy. Treat E17-E22 as reinforcing, not replacing, that missing evidence.
+</script>
+
+<script type="text/plain" id="content-evidence">
+[Same file as Evidence Log — runs/enefit-b2c-2026/evidence-log.md — this is the set of individual Evidence rows (E1 through E22) it contains. A few representative rows:]
+
+| ID | Date logged | Source | Type | Claim | Confidence | Linked hypotheses |
+| --- | --- | --- | --- | --- | --- | --- |
+| E2 | 2026-09-21 | Elektrum toob turule ainulaadse fikseeritud ja börsihinna hübriidpaketi (ringfm.treraadio.ee); Baltic Times | Desk (competitor launch) | Elektrum launched "Paindlik Klõps," a 50% fixed / 50% market-price hybrid package, explicitly because sharp market-price spikes in early 2026 produced "surprisingly high" bills for many households, prompting a wave of package reviews | Medium — a live competitor product launch is a real behavioral proxy for market pain, not just opinion | H1.1, H1.2 |
+| E3 | 2026-09-21 | elektrihind.ee/universaalteenus; Enefit blog | Desk | Estonia's universal electricity service ended 30 April 2026; every remaining universal-service customer was automatically and freely transferred to a stock-market-price package unless they actively chose otherwise | High — regulator/company-published fact, dated, unambiguous | H1.1, H1.3 |
+| E15 | 2026-09-21 | Eesti Energia Group Unaudited Results for Q2 2026 (GlobeNewswire) | Desk (own financial disclosure) | Q2 2026 group financials; EBITDA decline attributed mainly to a strong 2025 comparison base, not B2C retail specifically | High — Eesti Energia's own audited-basis interim disclosure | H1.2, H3.4 |
+| E21 | 2026-09-21 | biker.ee forum thread (Jan-June 2022) | Desk (public forum, historical/analogous) | During the 2021-2022 crisis, one forum thread ran 34 pages / ~998 posts; also surfaced that Eesti Energia's variable "hourly" package was actually billed on a daily-average basis for ~100,000 legacy-meter customers — an unverified-for-2026 billing risk | Low-Medium | H1.1, H1.6, H1.7 |
+
+Open content-evidence-log for the full E1-E22 table. Per the playbook's Agent contract: "Every number and claim carries an evidence-log ID. No uncited figures." — every Hypothesis and every Case File sizing input traces back to one of these rows, or is explicitly labeled an Assumption when it can't.
+</script>
+
+<script type="text/plain" id="content-research">
+# Stage 2 — Candidate 1: Price-spike / bill-protection hybrid package (Problem discovery)
+
+**Current stage:** 2 — Problem discovery (public-signal pass only; interview- and internal-data-dependent steps **Planned, not run**)
+**Owner:** Jüri Tomingas (homework run — standing in as named business approver, per `../scope.md`)
+
+**Instruction for this pass:** steps that need real customer contact or internal Enefit data are logged as **Planned** and were not executed. Steps that could be done with publicly available data were run, and every finding from them is marked as a public-signal proxy, not as the real thing it stands in for.
+
+## Status of each Agent step (per `playbook.md` Stage 2)
+
+| # | Step | Status | Notes |
+| --- | --- | --- | --- |
+| 1 | Define the segment in data | **Planned — blocked** | No Enefit internal data access this run (`../scope.md`). No new public segment data surfaced beyond what Stage 1 already used (Statistikaamet household counts, the universal-service transfer population in E3); the segment stays an assumption, not a sourced figure. |
+| 2 | Mine support tickets, call notes, free-text feedback | **Done — public-signal proxy, not real ticket data** | Used public forums and news coverage as a stand-in for ticket volume and sentiment. See E17-E22 in `../evidence-log.md`. |
+| 3 | Draft interview guide | **Drafted — ready, not conducted** | See below. |
+| 4 | Draft recruiting list | **Drafted — ready, not conducted; no customer contact made** | See below. |
+| 5 | Code interviews | **Planned — blocked** | No interviews were run, so there is nothing to code. |
+| 6 | Synthesize | **Done — public-signal synthesis only, not interview-based** | See below; explicitly tentative pending real interviews. |
+| 7 | Update hypothesis register and Stage 1 prize inputs | **Done** | See below. |
+
+## What the public-signal pass found (steps 2 and 6)
+
+Sources: Postimees market/news coverage, Enefit's own blog, and two public household forums (Perekooli Foorum, biker.ee) used as a ticket-mining stand-in. Full citations in `../evidence-log.md`, E17-E22.
+
+### Ranked problem signals (tentative — public signals only, not interview-validated)
+
+1. **Bill-shock recognition is real and recurring, not a one-off.** A named June 2026 spike (daily average €93.99/MWh, evening peak €359.01/MWh) [E17] and a January 2026 bill cycle that set a new household record, worse than the 2021 crisis peak [E18], both landed inside this run's window — this isn't a hypothetical risk, it's already happened twice in 2026 alone.
+2. **The "safe" alternative is getting worse just as demand for it rises.** Ahead of autumn 2026, households are actively trying to move to fixed-price contracts for winter protection, but fixed-price offers (especially six-month terms) have themselves risen sharply [E19]. This is the exact wedge Candidate 1's hybrid targets: today's binary choice is "accept volatility" or "pay a rising premium to escape it."
+3. **Enefit itself already fields this often enough to need a public FAQ.** Enefit's own blog has a dedicated post answering "why is my bill high despite a low average price" [E20]. Its only offered fix is switching to Enefit's existing all-or-nothing fixed-price package — confirming, from Enefit's own content, that no hybrid exists there today (consistent with what Stage 1 found for the competitor gap against Elektrum's Paindlik Klõps).
+4. **This has happened before at real scale.** A single household forum thread from the 2021-2022 energy crisis ran 34 pages and ~998 posts over several months [E21] — bill shock, discussion of switching to fixed price, and sustained engagement for months, not a two-week news cycle. Used only as historical precedent, not as evidence the same scale is happening in 2026.
+5. **New, unresolved risk surfaced by this pass:** E21 also reports that, during the 2022 episode, Eesti Energia's variable "hourly" package for roughly 100,000 legacy-meter customers was actually billed on a daily-average basis, not true hourly pricing — a billing-methodology gap that undermined trust when discovered. Whether this still applies to any of Enefit's current metering base in 2026 is **unverified** and now logged as a new hypothesis (H1.7) — it matters directly to Candidate 1, since a "protection" product loses credibility fast if its own billing granularity doesn't match what it claims to protect against.
+
+### Tentative job statement (pending real interviews)
+
+"When my market-price electricity bill comes in far higher than I expected, I want a way to know that a bad month won't blow up my budget, so I can stay on a pricing structure that can still save me money in normal months."
+
+This is a draft written from public signals, not from real customer language — it has not been tested against an actual interview and should not be treated as validated.
+
+### Confidence caveat
+
+Everything above is Low/Medium confidence on the playbook's own scale — desk research and public forum reading, not direct behavioral evidence. Per the Stage 2 gate rule, thresholds like "6 of 10 interviewees describe the problem unprompted within the last three months" cannot be evaluated from a pass like this one, and this synthesis should not be read as satisfying them.
+
+## Interview guide (drafted per step 3 — ready, not conducted)
+
+Past-behavior only, per the playbook's instruction: no pitching, no hypotheticals.
+
+1. Walk me through the last time your electricity bill surprised you. When was it, and how did you find out?
+2. What did you do right after seeing that bill — nothing, called the provider, looked at other packages, something else?
+3. What does your current package actually charge you for electricity — do you know, roughly, without looking it up?
+4. Have you ever changed electricity package or provider? What made you finally switch, if so?
+5. If you haven't switched despite a bad bill, what stopped you?
+6. Roughly how much time or money would you say a bad billing month has cost you, in the worst case you remember?
+7. Who else in the household is involved in deciding which electricity package you're on?
+8. Is there anything about how your bill is calculated that still doesn't make sense to you?
+
+## Recruiting list (drafted per step 4 — ready, not conducted, no contact made)
+
+Target: 8-12 people, spanning:
+
+- Households on a market-price/exchange package today (the core segment).
+- Households that switched to fixed-price specifically because of a bad bill (the "escaped" comparison group).
+- Households auto-transferred off universal service on 30 April 2026 who haven't since chosen a package (the passive/default group).
+- At least 1-2 non-customers (a competitor's customers) as an outside comparison, per the playbook's step 4.
+
+No names, contact details or recruiting outreach exist yet — this is a targeting spec only, pending your explicit approval to make contact per `../scope.md`'s "no customer contact without explicit approval logged here first" rule.
+
+## Hypothesis register update (step 7)
+
+| ID | Status after this pass | Why |
+| --- | --- | --- |
+| H1.1 | Untested, evidence reinforced | Stage 1 relied on one competitor launch (E2). This pass adds four independent public sources (news, Enefit's own FAQ, two forums) showing the same pattern — still not a real customer count or real interview, so status stays Untested, not Supported. |
+| H1.2 | Untested, evidence reinforced | E18 and E20 both add support for competitive/internal urgency beyond E2 alone. |
+| H1.6 (cannibalization) | Untested, unchanged | E19 shows the fixed-price alternative getting pricier, which is suggestive but doesn't resolve whether customers would see the hybrid as genuinely new value or just "which existing package do I pick." Still needs real interview data. |
+| H1.7 (new) | **Untested — new, flagged as urgent** | *Feasibility.* We believe Enefit's current market-price package bills customers on true hourly consumption × hourly price, not a coarser approximation. E21 shows this was reportedly false for ~100,000 legacy-meter customers in 2022. Risk 4, Uncertainty 5. If this still applies to any of today's metering base, it would undermine a "protection" hybrid's core credibility. Needs a direct check (public billing-methodology page or, if that's still ambiguous, an internal-data question flagged for Stage 3) before Stage 3 concept work assumes clean hourly billing. |
+
+## Stage 2 gate (this pass)
+
+The playbook's Go/Kill/Pivot test needs interview-based thresholds (for example, "6 of 10 interviewees describe the problem unprompted"). None were collected this pass, so no formal Go/Kill/Pivot decision is issued here.
+
+**Status: Hold — Planned.** Public signals are directionally supportive — the problem is real, recurring, and now corroborated by five independent public sources rather than one — and nothing surfaced that would kill the candidate. But the stage's own gate cannot be honestly closed on public-signal synthesis alone; steps 1, 4 and 5 remain Planned, not run, and the playbook's confidence scale is explicit that desk research tops out at Medium, never enough on its own to clear a Stage 2 gate built around real interview thresholds.
+
+## Human checkpoints still outstanding
+
+- Approve the interview guide, recruiting list and consent wording above (drafted, not yet approved or used).
+- Decide whether to authorize actual customer contact and recruiting, or keep Candidate 1 in this Planned/Hold state indefinitely.
+- If a real Enefit billing-methodology page can resolve H1.7 without customer contact, that's worth doing before Stage 3 regardless of the interview decision.
+</script>
+
+<script type="text/plain" id="content-hypothesis-register">
+# Stage 3 — Candidate 1: Price-spike / bill-protection hybrid package (Hypothesis map)
+
+**Current stage:** 3 — Hypothesis map (desk synthesis built; function-reviewer and decision-maker sign-offs **Planned, not obtained**)
+**Owner:** Jüri Tomingas (homework run — standing in as named business approver, per `../scope.md`)
+
+**Precondition note.** Per the playbook, Stage 3 starts once Stage 2 closes. Stage 2 here is **Hold — Planned** (`stage2-problem-discovery.md`): the public-signal pass ran, but the interview-dependent steps did not. `../scope.md` allows Stage 3 as "synthesis and function-reviewer time only," so this register is built now as **desk synthesis** — but its gate stays open pending (a) Stage 2's real interviews closing or being explicitly waived, (b) named legal/ops/IT/pricing/finance reviewers signing their rows, and (c) the decision-maker signing the kill thresholds before any Stage 4 test runs. None of those three human checkpoints is satisfiable inside this homework run.
+
+## Concept one-pager (step 1)
+
+| Field | Value |
+| --- | --- |
+| Segment | Estonian B2C customers on a market/stock-exchange-price package, including the 30 Apr 2026 ex-universal-service transfers (E3) |
+| Job | "When my market-price bill comes in far higher than I expected, I want to know a bad month won't blow up my budget, so I can stay on a structure that still saves me money in normal months." (tentative, from Stage 2 — not interview-validated) |
+| Offer | An opt-in **price-protected market package**: market pricing with a built-in monthly ceiling, or a blended fixed/market split in the shape of Elektrum's "Paindlik Klõps" (E2) — layered on the existing Enefit contract, not a new product line |
+| Price range | A modest margin/fee premium vs. the standard package — assumed **€20–€60 per adopting customer per year** (Stage 1 sizing assumption, not a sourced figure) |
+| Channel | Enefit's existing billing relationship — no new customer acquisition needed |
+| Revenue mechanism | Margin-mix premium on the hybrid vs. a standard package, plus retention value against rivals now offering a comparable hybrid (H1.5) |
+
+## Assumptions enumerated (steps 2–3)
+
+Walking the customer journey (aware → interested → signs up → uses → pays → stays) and the business model (cost, channel, operations, legal), tagged **D**esirability / **V**iability / **F**easibility / **L**egal:
+
+- **Aware / interested:** customers recognize the problem (H1.1, D) and understand and trust that the hybrid actually protects them rather than being one more confusing package choice (H1.11, D).
+- **Signs up:** a premium exists that enough customers will pay (H1.8, V).
+- **Uses / pays:** the bill is computed on a true hourly basis so a "protection" claim is credible (H1.7, F), and Enefit's billing system can compute and present a capped/blended line correctly at scale (H1.12, F).
+- **Business model:** Eesti Energia's trading function can hedge the ceiling exposure for less than the premium charged (H1.9, V); offering a price-cap/hybrid product to households triggers no new regulated-activity, consumer-credit or price-transparency obligation beyond the existing package (H1.10, L); the existing capability to layer differentiated contract terms extends to a pricing-structure product (H1.4, F); adopters come mostly from Enefit's own base rather than net-new (H1.6, V); the product reduces churn versus rivals (H1.5, V); it fits an Enefit priority (H1.2, strategic); and the pain concentrates enough to target (H1.3, V).
+
+## Ranked hypothesis register (steps 4–5)
+
+Priority = risk (impact if wrong, 1–5) × uncertainty (how little evidence exists, 1–5). Statements use the standard format; metrics, thresholds and the cheapest settling test are added for the top rows. Thresholds are **proposed** — none is signed by a decision-maker yet.
+
+| ID | Type | Statement | Risk | Unc. | Priority | Metric | Pass | Kill | Cheapest test (Stage 4 menu) | Reviewer |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| H1.8 | Viability · price | We believe a monthly premium exists that enough customers will pay **and** that stays margin-positive after hedging cost, because the pain is real and the premium is small relative to a bad month. | 5 | 4 | **20** | Best price-variant conversion **and** modeled contribution margin | A price point clears base-case adoption *and* is contribution-positive after hedging | No price both converts and stays margin-positive even in the optimistic case | Price-variant landing pages + unit-economics model | Pricing, Finance |
+| H1.7 | Feasibility · billing | We believe Enefit's market-price package bills on true hourly consumption × hourly price, a clean basis for a protection product. E21 shows this was false for ~100,000 legacy-meter customers in 2022. | 4 | 5 | **20** | Billing-methodology confirmed | True hourly billing confirmed for the current base | Coarse/daily-average basis that needs rework first | Billing-methodology check (public page, else internal question) | IT, Ops |
+| H1.1 | Desirability | We believe market-price customers will adopt a hybrid bill-protection package because recent bill shocks made pure exposure feel risky. | 4 | 4 | **16** | Fake-door waitlist signup rate | ≥5% | <2% | Fake-door landing page | — (customer) |
+| H1.9 | Viability · hedging | We believe Eesti Energia's trading function (E15) can hedge the ceiling exposure at a cost below the premium charged. | 4 | 4 | **16** | Modeled hedging cost per customer vs. premium | Hedge cost < premium in base case | Hedge cost > premium even optimistic | Unit-economics / hedging model | Finance, Trading |
+| H1.11 | Desirability · trust | We believe customers understand and trust the hybrid enough to prefer it, rather than reading it as one more confusing package choice. | 4 | 4 | **16** | Preference + comprehension in a message test | Hybrid preferred with premium accepted by ≥3% | No lift over existing packages | Message A/B (hybrid vs. existing framings) | — (customer) |
+| H1.2 | Strategic | We believe this fits an Enefit growth/retention priority, though no internal brief confirms it in this run. | 3 | 5 | **15** | Named priority in a strategy brief | Confirmed as a stated priority | Explicitly out of strategy | Internal strategy-brief check (**blocked** this run) | Decision-maker |
+| H1.5 | Viability · churn | We believe the package reduces churn versus rivals offering a comparable hybrid, but this needs churn data this run lacks. | 3 | 5 | **15** | Retained-vs-switched rate for adopters | Measurable churn reduction vs. control | No effect, or not measurable | Internal churn analysis (**blocked** this run) | Finance |
+| H1.10 | Legal | We believe offering a price-cap/hybrid product to households triggers no new regulated-activity, consumer-credit or price-transparency obligation beyond the existing package. | 4 | 3 | **12** | Legal desk-review verdict | Cleared, or conditional with a known cost | Blocked outright | Legal desk review | Legal |
+| H1.3 | Viability · segment | We believe ex-universal-service customers (E3) are disproportionately likely to want the hybrid vs. long-standing market-price customers. | 3 | 4 | **12** | Adoption by sub-segment | Ex-USO cohort over-indexes | No difference | Fold into Stage 2 interviews / segment split | — |
+| H1.6 | Viability · cannibalization | We believe most adopters come from Enefit's own base (cannibalizing its fixed/market packages) rather than switching in from rivals. | 3 | 3 | **9** | Source-of-adopter split | Meaningful net-new + anti-churn share | Pure cannibalization, no net gain | Message A/B now; pilot cohort analysis later | Finance |
+| H1.12 | Feasibility · system | We believe Enefit's billing system can compute and present a capped/blended bill line correctly at scale. | 3 | 3 | **9** | Technical spike outcome | Feasible in ≤2 sprints, no new metering hardware | Requires new metering hardware per household | Technical spike (fold in H1.4) | IT |
+| H1.4 | Feasibility · capability | We believe the capability to layer differentiated contract terms (insurance bundle, E4) extends to a pricing-structure product. | 2 | 3 | **6** | Covered by the H1.12 spike | — | — | Monitor; revisit at pilot | Ops |
+
+**Top three** include desirability (H1.1) and viability (H1.8), satisfying the gate's composition rule. The register's two highest-priority rows (H1.8 economics, H1.7 billing basis) are the two most able to kill the candidate on cheap evidence, which is where the playbook wants the register to point.
+
+## Test order and parallelism (step 7)
+
+| Priority band | Hypotheses | When |
+| --- | --- | --- |
+| 16–25 — test first, before any build | H1.8, H1.7, H1.1, H1.9, H1.11 | First wave |
+| 9–15 — test next or fold into a combined test | H1.2, H1.5, H1.10, H1.3, H1.6, H1.12 | Second wave |
+| ≤8 — monitor, revisit at pilot | H1.4 | Later |
+
+**Runs in parallel:** the desk/internal rows (H1.7 billing check, H1.9 economics model, H1.10 legal desk review) can run alongside the customer-facing rows (H1.1 fake-door, H1.8 price-variants, H1.11 message test), which themselves share one paid-traffic buy. H1.2 and H1.5 are **blocked** this run (need a strategy brief and churn data, neither available per `../scope.md`) and are carried, not run.
+
+## Function-reviewer routing (step 6)
+
+The playbook requires each tagged row to reach its named reviewer at Stage 3, not at launch. This homework run has **no assigned legal, ops, IT, pricing or finance reviewers** (`../scope.md`), so routing is specified but every sign-off is **Planned — not obtained**.
+
+| Function | Rows to review | Status |
+| --- | --- | --- |
+| Legal | H1.10 | Planned — no reviewer assigned |
+| Pricing | H1.8 | Planned — no reviewer assigned |
+| Finance | H1.8, H1.9, H1.5, H1.6 | Planned — no reviewer assigned |
+| IT | H1.7, H1.12, H1.4 | Planned — no reviewer assigned |
+| Ops | H1.7, H1.4 | Planned — no reviewer assigned |
+
+## Gate proposal (this candidate)
+
+**Hold — register built, gate open.** The agent-buildable output is complete: every top hypothesis has a risk/uncertainty score, proposed metric, proposed pass and kill thresholds, and a named cheapest test, ordered by priority. Nothing in desk review refutes a legal or feasibility hypothesis outright, so this is **not** a kill or pivot — but it is not a clean **Go** either, because the playbook's Stage 3 Go gate requires all three of: Stage 2 closed (it is Hold — Planned), legal and feasibility reviewers signed (none assigned), and the decision-maker signing the kill thresholds (not done). Those are human checkpoints this run cannot clear on its own.
+
+H1.7 (billing basis) and H1.10 (legal) are flagged as the rows most likely to force a pivot or kill on cheap desk evidence — both should be settled before any customer-facing spend.
+
+## Handover to Stage 4
+
+- Ranked register above: for the top rows, the metric, proposed pass/kill thresholds and the cheapest test — **thresholds not yet signed by the decision-maker**.
+- Test backlog with order and owners (Test order section) — first wave: H1.8, H1.7, H1.1, H1.9, H1.11.
+- Concept one-pager (above).
+- Function-reviewer sign-offs: **outstanding** on the legal (H1.10) and feasibility (H1.7, H1.12) rows.
+
+## Human checkpoints still outstanding
+
+- Decision-maker signs the kill thresholds above before any Stage 4 test runs.
+- Assign real legal / ops / IT / pricing / finance reviewers and collect their edits on the routed rows.
+- Close Stage 2 (authorize and run the drafted interviews) or explicitly waive it; this register is provisional until then.
+- Resolve H1.7 (billing methodology) up front — a "protection" product cannot proceed on an assumption of clean hourly billing that E21 shows was once false at scale.
+</script>
+
+<script type="text/plain" id="content-hypothesis">
+[Same file as Hypothesis Register — runs/enefit-b2c-2026/candidate-1-price-protection-hybrid/stage3-hypothesis-map.md — this is the ranked table of individual Hypothesis rows it contains:]
+
+| ID | Type | Statement | Risk | Unc. | Priority | Metric | Pass | Kill | Cheapest test (Stage 4 menu) | Reviewer |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| H1.8 | Viability · price | We believe a monthly premium exists that enough customers will pay **and** that stays margin-positive after hedging cost. | 5 | 4 | **20** | Best price-variant conversion **and** modeled contribution margin | A price point clears base-case adoption *and* is contribution-positive after hedging | No price both converts and stays margin-positive even in the optimistic case | Price-variant landing pages + unit-economics model | Pricing, Finance |
+| H1.7 | Feasibility · billing | We believe Enefit's market-price package bills on true hourly consumption × hourly price. E21 shows this was false for ~100,000 legacy-meter customers in 2022. | 4 | 5 | **20** | Billing-methodology confirmed | True hourly billing confirmed for the current base | Coarse/daily-average basis that needs rework first | Billing-methodology check | IT, Ops |
+| H1.1 | Desirability | We believe market-price customers will adopt a hybrid bill-protection package because recent bill shocks made pure exposure feel risky. | 4 | 4 | **16** | Fake-door waitlist signup rate | ≥5% | <2% | Fake-door landing page | — (customer) |
+| H1.6 | Viability · cannibalization | We believe most adopters come from Enefit's own base rather than switching in from rivals. | 3 | 3 | **9** | Source-of-adopter split | Meaningful net-new + anti-churn share | Pure cannibalization, no net gain | Message A/B now; pilot cohort analysis later | Finance |
+
+Open content-hypothesis-register for the full 12-row table (H1.1 through H1.12), including risk/uncertainty scores, thresholds, cheapest test and named reviewer for every row. Each row's ID is threaded back to where it was first raised — most originate as an Assumption in the Case File's Sizing table, per the playbook's Agent contract rule 2: "A figure taken from memory or estimated is written as an assumption with a range, and enters the register as a hypothesis."
+</script>
+
+<script type="text/plain" id="content-cheap-tests">
+[No Enefit candidate has reached Stage 4 yet — Candidate 1 is still at Stage 3 (Hold — register built, gate open). Shown below is the method's generic definition, from playbook/playbook.md.]
+
+## Stage 4: Cheap tests
+
+**Goal:** settle the riskiest hypotheses with behavioral evidence before anything is built at scale.
+
+**Inputs:** ranked register with signed thresholds, test backlog, and approval for a test budget and audience.
+
+**Test menu**
+
+| Hypothesis type | Test | Behavioral signal that counts |
+| --- | --- | --- |
+| Desirability | Fake door: landing page or in-app banner offered to existing customers | Click-through and waitlist sign-ups with contact details |
+| Desirability | Concept session with a simple prototype | Customers agree to a next step (trial, call, pre-registration), not just praise |
+| Viability, price | Price-variant landing pages shown to comparable audiences | Conversion by price point |
+| Feasibility, service | Concierge test: deliver the service manually to 10-20 volunteers | Effort per customer, error rate, would they keep it |
+| Feasibility, technical | Time-boxed technical spike on the riskiest integration | Works or does not, with a time estimate |
+| Legal | Desk review, then a written opinion from legal | Cleared, cleared with conditions, or blocked |
+| Viability, economics | Unit economics model fed with test results, plus sensitivity range | Contribution per customer per month in base and low cases |
+
+**Test design template** (one per test, frozen in the register before launch)
+
+| Field | Content |
+| --- | --- |
+| Hypothesis ID and statement | From the register |
+| Audience and sample | Who sees it and how many; large enough that the pass and kill thresholds can be told apart |
+| Method and duration | From the menu; fixed run window |
+| Primary metric | One metric only |
+| Pass threshold | Result at or above this counts as supported |
+| Kill threshold | Result at or below this counts as refuted |
+| Inconclusive zone | Between the two thresholds |
+| Cost, owner, consent needs | Budget, named person, data and consent handling |
+
+**Agent steps**
+
+1. For each queued hypothesis, choose the test and fill the template.
+2. Freeze thresholds in the register with a timestamp before launch.
+3. Prepare test assets (page copy, banner, script, survey) and send for approval.
+4. Run the approved test inside its window. Do not stop early on a good-looking result; stop early only if a guardrail is hit.
+5. Analyze against the frozen thresholds, log the evidence, and set the hypothesis status.
+6. Record each result as: hypothesis, test, result, decision (pass, fail, or inconclusive with the next action).
+7. Update the unit economics model with the observed rates and propose a gate decision.
+
+**Decision rules:** a pass marks the hypothesis supported. A fail marks it refuted and triggers pivot or kill review. An inconclusive result allows one longer or larger rerun; if it is still inconclusive, treat it as a fail.
+
+**Outputs:** filled test templates, evidence log entries, updated register statuses, updated economics model, gate decision record.
+
+**Gate**
+
+- **Go to pilot** if the top three hypotheses are supported, no showstopper is refuted, the price range holds, and the economics model is positive in the base case using observed rates.
+- **Pivot** if the value is confirmed but price, segment or mechanism failed.
+- **Kill** if desirability or the core economics is refuted.
+
+**Human checkpoints:** approve every customer-facing asset, audience, spend and consent wording. Fake door pages must state clearly that the product is not yet available and must not take payment. Approve the results before the gate.
+
+**Agent brief:** "Run Stage 4 for the top-ranked hypotheses. Fill one test template each, freeze thresholds, prepare assets for approval, and after approved runs analyze the results strictly against the thresholds. Propose the gate decision."
+
+### Handover to Stage 5
+
+- Register with statuses updated from the test results.
+- Filled test templates and their evidence entries.
+- Economics model rebuilt with observed rates.
+- Validated price range.
+- Concept and minimal product specification.
+
+For Candidate 1 specifically, the first-wave queue waiting on Stage 4 is: H1.8 (price), H1.7 (billing basis), H1.1 (desirability), H1.9 (hedging economics), H1.11 (trust) — see stage3-hypothesis-map.md's "Test order and parallelism" section.
+</script>
+
+<script type="text/plain" id="content-pilot">
+[No Enefit candidate has reached Stage 5 yet. Shown below is the method's generic definition, from playbook/playbook.md.]
+
+## Stage 5: Pilot
+
+**Goal:** show that the package works with real customers on real contracts, in economics and in operations, before any full launch.
+
+**Inputs:** Stage 4 evidence and updated economics model, approved price range, a minimal product specification, draft customer terms, and operational readiness for a small cohort.
+
+**Agent steps**
+
+1. Define the pilot scope: only the features the supported hypotheses require, one price, terms with an easy exit, and a duration long enough to cover a full billing cycle and any seasonal effect that matters.
+2. Size the cohort at roughly 100-500 customers. Where possible, keep a matched control group of similar customers without the package.
+3. Write the measurement plan: for each metric, the question it answers and a threshold taken from the economics model (retention, conversion, price realized, support contacts per customer, cost to serve, margin, cannibalization, satisfaction).
+4. Set guardrails with pause triggers: complaint rate, billing error rate, support load, any customer harm.
+5. Prepare readiness items with their owners: customer terms and consumer-protection review, billing, support script, IT, data handling. Send each for sign-off.
+6. Propose the cohort list and invitation text for approval. Do not invite anyone before approval.
+7. Run weekly: refresh the dashboard, compare every metric with its threshold and every guardrail with its limit, and send a short readout that flags breaches.
+8. Interview about ten pilot customers at the midpoint and at the end: why they stayed, why they left, what surprised them.
+9. Compute unit economics from actuals and measure cannibalization against the control group.
+10. Write the pilot report and propose a gate decision.
+
+**Outputs:** measurement plan, weekly readouts, coded exit interviews, actual unit economics, cannibalization estimate, pilot report, gate decision record.
+
+**Gate**
+
+- **Go to launch readiness** if retention and price realized meet their thresholds, contribution margin is positive in the base case, support load is within capacity, cannibalization is within the agreed limit, and no guardrail breach is unresolved.
+- **Extend or fix** if one metric misses and the cause is understood and fixable within a defined time.
+- **Pivot or kill** if retention or margin misses with no credible fix.
+
+**Human checkpoints:** approve pilot terms, cohort and guardrail limits before launch; the named owner decides on any pause; approve the report before the gate.
+
+**Agent brief:** "Run Stage 5. Produce the pilot scope, measurement plan and guardrails for approval. After launch, produce the weekly readout against thresholds, flag any breach immediately, and at the end write the pilot report with actual unit economics and a proposed gate decision."
+
+### Handover to Stage 6
+
+- Pilot report with actual unit economics and the cannibalization estimate.
+- Final price and customer terms as tested in the pilot.
+- Coded exit interviews and lessons learned.
+- Guardrail limits that worked, as the starting point for rollout.
+
+For Candidate 1 specifically, `scope.md`'s pilot-cost table already flags this as the "software/automation" profile (€5,000-20,000 realistic range) rather than the hardware-and-financing profile — no equipment or installation is needed, just billing logic layered on the existing relationship.
+</script>
+
+<script type="text/plain" id="content-full-solution">
+[No Enefit candidate has reached Stages 6-8 yet. Shown below is the method's generic definition, from playbook/playbook.md.]
+
+## Stages 6-8: Launch readiness, rollout, scale or sunset
+
+These stages follow the same pattern (inputs, agent steps, gate, human checkpoints) and are specified in less detail. Expand them once a pilot has passed.
+
+**Stage 6: Launch readiness**
+
+- Confirm final pricing and positioning from pilot data, including the core message and who the package is not for.
+- Run a readiness checklist with a named owner and sign-off per row: legal and consumer-protection terms, billing and systems, support training and scripts, sales training, marketing assets, data protection, reporting, and the cannibalization plan.
+- Set the rollout plan, guardrail metrics and pause triggers.
+- **Gate:** every checklist row signed, or an accepted risk recorded with an owner.
+
+**Stage 7: Staged rollout**
+
+- Ramp in cohorts (for example 10%, 25%, 50%, 100% of the eligible base), holding each step until guardrails stay in range for a set period.
+- Watch guardrails weekly: complaints, billing errors, support load, churn in the cohort against the control, and cannibalization.
+- **Gate per step:** guardrails in range and the economics model still holds. A breach pauses the ramp until the owner decides.
+
+**Stage 8: Scale, review, sunset**
+
+| Review | Question | Decision |
+| --- | --- | --- |
+| 30 days | Are early behavior and support load as expected? | Continue, fix, or pause |
+| 90 days | Do retention, price realized and margin match the pilot? | Scale, fix, or narrow the segment |
+| 180 days | Does the package beat its original hypotheses and the prize estimate? | Scale, keep as is, or sunset |
+
+- Every review compares actuals with the hypothesis register, updates the register statuses, and records what the team would do differently.
+- A sunset plan (customer notice, migration path, contract exit) is written before launch, not after a failure.
+
+**Agent brief for stages 6-8:** "Maintain the readiness checklist and chase sign-offs; during rollout produce the weekly guardrail readout and flag breaches immediately; at each review, compare actuals with the register and propose scale, fix or sunset."
+</script>
+
+<script>
+(function () {
+  var ENTITIES = {
+    "scope": {
+      title: "Scope",
+      status: "live",
+      file: "runs/enefit-b2c-2026/scope.md",
+      desc: "Run-wide restrictions and preconditions — segment, allowed sources, budget ceilings per stage, and the minimum prize. Set once before Stage 1 runs; bounds every Opportunity considered in this run."
+    },
+    "opportunity": {
+      title: "Opportunity",
+      status: "live",
+      file: "runs/enefit-b2c-2026/opportunities.md",
+      desc: "Every candidate problem surfaced at Stage 1, scored on frequency/pain/size/reach and run through the strategic fit test, before narrowing to what proceeds. Shows breadth — several real options, not just the winner."
+    },
+    "case-file": {
+      title: "Case File",
+      status: "live",
+      file: "runs/enefit-b2c-2026/candidate-1-price-protection-hybrid/stage1-case-file.md",
+      desc: "One page per surviving Opportunity: problem statement, segment, sized prize range (conservative/base/optimistic), cannibalization check, current stage and owner. Shown here for Candidate 1, the only Opportunity that proceeded past Stage 1."
+    },
+    "assumptions": {
+      title: "Assumptions",
+      status: "live",
+      file: "runs/enefit-b2c-2026/candidate-1-price-protection-hybrid/stage1-case-file.md (Sizing section)",
+      desc: "Any number or claim taken from memory or estimated rather than sourced — logged with a range and an “assumption” label, then entering the Hypothesis Register as a hypothesis to be tested."
+    },
+    "evidence-log": {
+      title: "Evidence Log",
+      status: "live",
+      file: "runs/enefit-b2c-2026/evidence-log.md",
+      desc: "One row per sourced fact: ID, date, source, type, claim, confidence (H/M/L), linked hypothesis IDs. Shared at the run level and cited by every stage rather than copy-pasted into each."
+    },
+    "evidence": {
+      title: "Evidence",
+      status: "live",
+      file: "runs/enefit-b2c-2026/evidence-log.md (rows E1–E22)",
+      desc: "A single sourced claim — one row in the Evidence Log. Every number or claim used anywhere in the run must carry an evidence ID; E1 through E22 are where all of them actually live."
+    },
+    "research": {
+      title: "Research",
+      status: "live",
+      file: "runs/enefit-b2c-2026/candidate-1-price-protection-hybrid/stage2-problem-discovery.md",
+      desc: "Stage 2: confirms the problem is real, frequent and reachable — segment analysis, coded interviews (here, a public-signal proxy pass since no real interviews were run), ranked problems and a job statement."
+    },
+    "hypothesis-register": {
+      title: "Hypothesis Register",
+      status: "live",
+      file: "runs/enefit-b2c-2026/candidate-1-price-protection-hybrid/stage3-hypothesis-map.md",
+      desc: "The ranked, run-level register of every testable assumption for a candidate — risk × uncertainty priority, metric, pass/kill thresholds and cheapest test, threaded across stage files by hypothesis ID rather than duplicated."
+    },
+    "hypothesis": {
+      title: "Hypothesis",
+      status: "live",
+      file: "runs/enefit-b2c-2026/candidate-1-price-protection-hybrid/stage3-hypothesis-map.md (rows H1.1–H1.12)",
+      desc: "A single testable assumption — one row in the register (e.g. H1.7: “Enefit’s market-price package bills on true hourly consumption”), tagged desirability/viability/feasibility/legal, with its own status."
+    },
+    "cheap-tests": {
+      title: "Cheap Tests",
+      status: "spec",
+      file: "playbook/playbook.md — Stage 4",
+      desc: "Stage 4's test menu (fake door, concierge test, price-variant pages, technical spike, legal desk review, unit-economics model) for settling the riskiest hypotheses with behavioral evidence. Not yet run for any Enefit candidate."
+    },
+    "pilot": {
+      title: "Pilot",
+      status: "spec",
+      file: "playbook/playbook.md — Stage 5",
+      desc: "Stage 5: proves the package works with 100-500 real customers across a full billing cycle before any full launch. Not yet reached by any Enefit candidate."
+    },
+    "full-solution": {
+      title: "Full Solution",
+      status: "spec",
+      file: "playbook/playbook.md — Stages 6-8",
+      desc: "Stages 6-8: launch readiness, staged rollout, and the 30/90/180-day scale-fix-sunset reviews. Not yet reached by any Enefit candidate."
+    }
+  };
+
+  var panel = document.getElementById('panel');
+  var overlay = document.getElementById('overlay');
+  var panelTitle = document.getElementById('panel-title');
+  var panelBadges = document.getElementById('panel-badges');
+  var panelDesc = document.getElementById('panel-desc');
+  var panelContent = document.getElementById('panel-content');
+  var closeBtn = document.getElementById('panel-close');
+
+  function openEntity(id) {
+    var e = ENTITIES[id];
+    if (!e) return;
+    var raw = document.getElementById('content-' + id);
+    panelTitle.textContent = e.title;
+    panelDesc.textContent = e.desc;
+    panelBadges.innerHTML = '';
+
+    var statusBadge = document.createElement('span');
+    statusBadge.className = 'badge ' + (e.status === 'live' ? 'live' : 'spec');
+    statusBadge.textContent = e.status === 'live' ? 'live data' : 'spec only';
+    panelBadges.appendChild(statusBadge);
+
+    var fileBadge = document.createElement('span');
+    fileBadge.className = 'badge ' + (e.status === 'live' ? 'live' : 'spec');
+    fileBadge.textContent = e.file;
+    panelBadges.appendChild(fileBadge);
+
+    panelContent.textContent = raw ? raw.textContent.trim() : '(no content found)';
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden', 'false');
+    overlay.classList.add('open');
+    panel.focus && closeBtn.focus();
+  }
+
+  function closePanel() {
+    panel.classList.remove('open');
+    panel.setAttribute('aria-hidden', 'true');
+    overlay.classList.remove('open');
+  }
+
+  document.querySelectorAll('.node').forEach(function (node) {
+    var id = node.getAttribute('data-id');
+    node.addEventListener('click', function () { openEntity(id); });
+    node.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        openEntity(id);
+      }
+    });
+  });
+
+  closeBtn.addEventListener('click', closePanel);
+  overlay.addEventListener('click', closePanel);
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape') closePanel();
+  });
+})();
+</script>
+
+</body>
+</html>
