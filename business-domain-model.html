@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Business Domain — Kill Bad Ideas Cheap</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%232f9b9b'/%3E%3Cstop offset='1' stop-color='%231d5f6a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='30' fill='url(%23g)'/%3E%3Cpath d='M18 33 L27 42 L46 21' fill='none' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --section-pad: 56px 24px 20px;
+    --h2-size: 36px;
+  }
+  @media (max-width: 600px) {
+    :root { --section-pad: 40px 20px 12px; --h2-size: 26px; }
+  }
+  html, body { margin: 0; background: oklch(97.5% 0.006 255); }
+  body { font-family: 'IBM Plex Sans', sans-serif; color: oklch(18% 0.02 260); }
+  * { box-sizing: border-box; }
+  h1, h2, h3 { text-wrap: balance; }
+
+  .nav-link { transition: color 0.2s ease; text-decoration: none; color: oklch(30% 0.02 260); cursor: pointer; }
+  .nav-link:hover { color: oklch(45% 0.13 195); }
+  .nav-link.current { color: oklch(45% 0.13 195); }
+
+  .diagram-card { background: #fff; border: 1px solid oklch(89% 0.006 255); border-radius: 14px; box-shadow: 0 1px 2px rgba(16,24,40,0.04); padding: 24px; overflow-x: auto; }
+  .diagram-card svg { max-width: none; }
+
+  .dm-legend { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 18px; font-size: 12.5px; color: oklch(42% 0.02 260); align-items: center; }
+  .dm-legend .swatch-pill { display: inline-flex; align-items: center; gap: 6px; }
+  .dm-legend .line-sample { display: inline-block; width: 26px; height: 0; border-top: 2px solid oklch(45% 0.13 195); vertical-align: middle; }
+  .dm-legend .line-sample.dashed { border-top: 2px dashed oklch(58% 0.1 195); }
+</style>
+</head>
+<body>
+
+<div style="position: sticky; top: 0; z-index: 20; background: rgba(249,250,251,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid oklch(90% 0.006 255);">
+  <div style="max-width: 1080px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+    <a href="index.html" style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; text-decoration: none; color: oklch(18% 0.02 260);">How I decide what to build next</a>
+    <div style="display: flex; gap: 26px; font-size: 13.5px; font-weight: 600; flex-wrap: wrap;">
+      <a href="index.html#playbook" class="nav-link">The Playbook</a>
+      <a href="index.html#applied" class="nav-link">Applied to Enefit</a>
+      <a href="domain-model.html" class="nav-link">Process Model</a>
+      <a href="business-domain-model.html" class="nav-link current" aria-current="page">Business Domain</a>
+    </div>
+  </div>
+</div>
+
+<div style="max-width: 1080px; margin: 0 auto; padding: var(--section-pad);">
+  <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: oklch(45% 0.13 195); margin-bottom: 10px;">Reference</div>
+  <h2 style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: var(--h2-size); line-height: 1.2; margin: 0 0 28px; letter-spacing: -0.01em; max-width: 720px;">What this method is actually modeling</h2>
+</div>
+
+<div style="max-width: 1600px; margin: 0 auto; padding: 0 24px 56px;">
+  <div class="diagram-card">
+    <div id="domainmodel"></div>
+  </div>
+
+  <div class="dm-legend">
+    <span class="swatch-pill"><span class="line-sample"></span> structural relationship (owns, targets, carries, gates)</span>
+    <span class="swatch-pill"><span class="line-sample dashed"></span> secondary relationship (reviews, samples, resolves)</span>
+    <span class="swatch-pill">Candidate and Claim carry their lifecycle as a status attribute, not as separate boxes</span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+  const src = `classDiagram
+    class Customer {
+        household or individual
+        observed behavior
+    }
+    class Segment {
+        contract type, consumption
+        tenure
+    }
+    class Candidate {
+        status: raw to launched
+        problem statement
+        prize range
+    }
+    class Company {
+        capability, brand
+        licences
+    }
+    class Competitor
+    class Partner
+    class Regulator
+    class Channel
+    class Risk {
+        type: desirability, viability,
+        feasibility, legal
+    }
+    class Claim {
+        status: assumption to resolved
+        metric and threshold
+    }
+    class Evidence {
+        source
+        confidence
+    }
+    class CheapTest {
+        method
+        cost
+    }
+    class Pilot {
+        cohort size
+        duration
+    }
+    class ReviewFunction {
+        legal, ops, IT
+        pricing, finance
+    }
+    class DecisionMaker {
+        owns budget and gate
+    }
+    Customer "many" --> "1" Segment : member of
+    Candidate "many" --> "1" Segment : targets
+    Company "1" --> "many" Candidate : develops
+    Candidate "0..1" --> "0..1" Candidate : cannibalizes
+    Competitor "many" ..> "many" Segment : also targets
+    Company "many" --> "many" Partner : may route through
+    Regulator "1" --> "many" Candidate : constrains
+    Company "1" --> "many" Channel : reaches via
+    Channel "many" --> "many" Customer : reaches
+    Candidate "1" --> "many" Risk : carries
+    Risk "1" --> "many" Claim : operationalized as
+    Evidence "many" ..> "many" Claim : resolves
+    CheapTest "1" --> "many" Evidence : produces
+    Pilot "1" --> "many" Evidence : produces
+    CheapTest "many" ..> "many" Customer : samples
+    Pilot "many" ..> "many" Customer : cohort of
+    ReviewFunction "many" ..> "many" Risk : reviews
+    DecisionMaker "1" --> "many" Candidate : gates`;
+  mermaid.render('business-domain-svg', src).then(function (result) {
+    document.getElementById('domainmodel').innerHTML = result.svg;
+  });
+</script>
+
+</body>
+</html>
